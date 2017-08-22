@@ -2,7 +2,7 @@
 <web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
   <display-name>WebForum2017</display-name>
   <welcome-file-list>
-    <welcome-file>index.html</welcome-file>
+    <welcome-file>startPage.html</welcome-file>
   </welcome-file-list>
   
   <servlet>
@@ -10,7 +10,7 @@
     <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
     <init-param>
       <param-name>jersey.config.server.provider.packages</param-name>
-      <param-value>services,org.codehaus.jackson.jaxrs</param-value>
+      <param-value>service,org.codehaus.jackson.jaxrs</param-value>
     </init-param>
     <init-param>
         <param-name>jersey.config.server.provider.classnames</param-name>

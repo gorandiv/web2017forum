@@ -1,0 +1,206 @@
+<div class="container-fluid" ng-controller="userController">
+    <!-- Second navbar for search -->
+    <nav class="navbar navbar-inverse">
+      <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-3">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" >Forum</a>
+        </div>
+    
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="navbar-collapse-3">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a ng-click="goToInbox()">Inbox</a></li>
+            <li><a ng-if="isAdmin()" ng-click="goToCreateForum()">Create Forum</a></li>
+            <li><a ng-if="isAdmin()" ng-click="goToUserRole()">Edit User Role</a></li>
+            <li><a ng-click="logout()">LogOut</a></li>
+            <li>
+              <a class="btn btn-default btn-outline btn-circle collapsed"  data-toggle="collapse" href="#nav-collapse3" aria-expanded="false" aria-controls="nav-collapse3">Search</a>
+            </li>
+          </ul>
+          <div class="collapse nav navbar-nav nav-collapse slide-down" id="nav-collapse3">
+            <form class="navbar-form navbar-right" role="search">
+              <div class="form-group">
+                <input type="text" class="form-control" placeholder="Search" />
+              </div>
+              <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
+            </form>
+          </div>
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav><!-- /.navbar -->
+    
+   <div class="container" ng-show="inbox">
+	<div class="row">
+		<div class="panel panel-default">
+        <div class="panel-heading clearfix">
+          <h3 class="panel-title">Message Form</h3>
+        </div>
+        <div class="panel-body">
+            <form role="form" class="form-horizontal">
+                <div class="form-group">
+                  <label class="col-sm-2" for="inputTo">To</label>
+                  <div class="col-sm-10"><input type="text" ng-model="message.receiver" class="form-control" id="inputTo" placeholder="type a receiver"></div>
+                </div>
+                <div class="form-group">
+                  <label class="col-sm-2" for="inputBody">Message</label>
+                  <div class="col-sm-10"><input type="text" ng-model="message.content" class="form-control" id="inputBody" placeholder="input text"></div>
+                </div>
+                <button type="button" class="btn btn-success" ng-click="sendMessage()">Send</button>
+            </form>
+        </div>
+      </div>
+	</div>
+	
+		<div class="row"">
+			<div class="panel panel-default">
+	        <div class="panel-heading clearfix">
+	          <h3 class="panel-title">Inbox</h3>
+	         </div>
+				<table class="table table-striped">
+				    <thead>
+				      <tr>
+				        <th>Sender</th>
+				        <th>Content</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr ng-repeat="m in messages">
+				        <td>{{m.sender}}</td>
+				        <td><button type="button" class="btn btn-success" ng-click="readMessage(m)" data-toggle="modal" data-target="#myModal">Read message</button></td>
+				      </tr>
+				    </tbody>
+				  </table>
+		  </div>
+		</div>
+		
+		
+		 <div class="modal fade" id="myModal" tabindex="-1" role="dialog"  style="display: none;">
+    	  <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-header">
+			      
+			          <h4 class="modal-title">Message view</h4>
+			        </div>
+			        <div class="modal-body">
+			          <div class="form-group">
+					      <label>Sender:</label>
+					      <input type="text" class="form-control" id="sender" ng-model="sender" disabled>
+					  </div>
+					  <div class="form-group">
+					  	  <label>Content:</label>
+					  	  <input type="text" class="form-control" id="content" ng-model="content" disabled>
+			          </div>
+			          <div class="form-group">
+			          		<label>Reply:</label>
+			          		<input type="text" class="form-control" id="reply" ng-model="replyContent">
+			          </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="replyMessage()">Reply</button>
+			          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+			          
+			        </div>
+			   	   </div>
+				</div>	
+			</div>     
+		</div>  
+</div>
+
+	<div class="container" ng-show="editUserRole" >
+		<div class="row"">
+			<div class="panel panel-default">
+	        <div class="panel-heading clearfix">
+	          <h3 class="panel-title">Edit User Role</h3>
+	         </div>
+				<table class="table table-striped">
+				    <thead>
+				      <tr>
+				        <th>Username</th>
+				        <th>User role</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr ng-repeat="u in users">
+				        <td>{{u.username}}</td>
+				        <td>{{u.role}}</td>
+				        <td><button type="button" class="btn btn-success" ng-click="editUser(u)"  data-toggle="modal" data-target="#myModal2">Edit user role</button></td>
+				      </tr>
+				    </tbody>
+				  </table>
+		  </div>
+		</div>
+		
+		<div class="modal fade" id="myModal2" tabindex="-1" role="dialog"  style="display: none;">
+    	  <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-header">
+			      
+			          <h4 class="modal-title">Message view</h4>
+			        </div>
+			        <div class="modal-body">
+			          <div class="form-group">
+					      <label>Username:</label>
+					      <input type="text" class="form-control" id="username" ng-model="username" disabled>
+					  </div>
+					  <div class="form-group">
+					  	   <label>
+						    <input type="radio" ng-model="role.user" value="USER">
+						    USER
+						  </label><br/>
+						  <label>
+						    <input type="radio" ng-model="role.user" value="ADMINISTRATOR">
+						    ADMINISTRATOR
+						  </label><br/>
+						  <label>
+						    <input type="radio" ng-model="role.user" value="MODERATOR">
+						    MODERATOR
+						  </label>
+					  	  
+			          </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-danger" data-dismiss="modal" ng-click="editUserRole(username,role.user)">Edit</button>
+			          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+			          
+			        </div>
+			   	   </div>
+				</div>	
+			</div>     
+		</div>  
+	</div>	
+		<div class="container" ng-show="createForum">
+			<div class="row">
+				<div class="panel panel-default">
+		        <div class="panel-heading clearfix">
+		          <h3 class="panel-title">Create Forum</h3>
+		        </div>
+		        <div class="panel-body">
+		            <form role="form" class="form-horizontal">
+		                <div class="form-group">
+		                  <label class="col-sm-2" for="inputTo">Name</label>
+		                  <div class="col-sm-10"><input type="text" ng-model="forum.name" class="form-control" id="forumName"></div>
+		                </div>
+		                <div class="form-group">
+		                  <label class="col-sm-2" for="inputBody">Description</label>
+		                  <div class="col-sm-10"><input type="text" ng-model="forum.description" class="form-control" id="forumDescription"></div>
+		                </div>
+		                <div class="form-group">
+		                  <label class="col-sm-2" for="inputBody">Icon</label>
+		                  <div class="col-sm-10"><input type="icon" ng-model="forum.icon" class="form-control" id="forumIcon"></div>
+		                </div>
+		                <button type="button" class="btn btn-success" ng-click="sendMessage()">Create Forum</button>
+		            </form>
+		        </div>
+		      </div>
+			</div>
+		</div>
+		
+	
+	
+	
+</div>

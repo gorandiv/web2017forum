@@ -1,94 +1,136 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class User {
 
-		private String username;
-		private String password;
-		private String firstName;
-		private String lastName;
-		private String role;
-		private String contactPhone;
-		private String email; 
-		private Date dateOfRegistration;
-		private ArrayList<Subforum> listOfSubscirebedSubforums;
-		private ArrayList<Theme> listOfSavedThemes;
-		private ArrayList<Comment> listOfSavedComments;
-		
-		
-		public User() {
-			super();
-		}
-		public String getUsername() {
-			return username;
-		}
-		public void setUsername(String username) {
-			this.username = username;
-		}
-		public String getPassword() {
-			return password;
-		}
-		public void setPassword(String password) {
-			this.password = password;
-		}
-		public String getFirstName() {
-			return firstName;
-		}
-		public void setFirstName(String firstName) {
-			this.firstName = firstName;
-		}
-		public String getLastName() {
-			return lastName;
-		}
-		public void setLastName(String lastName) {
-			this.lastName = lastName;
-		}
-		public String getRole() {
-			return role;
-		}
-		public void setRole(String role) {
-			this.role = role;
-		}
-		public String getContactTelephone() {
-			return contactPhone;
-		}
-		public void setContactTelephone(String contactTelephone) {
-			this.contactPhone = contactTelephone;
-		}
-		public String getEmail() {
-			return email;
-		}
-		public void setEmail(String email) {
-			this.email = email;
-		}
-		public Date getDateOfRegistration() {
-			return dateOfRegistration;
-		}
-		public void setDateOfRegistration(Date dateOfRegistration) {
-			this.dateOfRegistration = dateOfRegistration;
-		}
-		public ArrayList<Subforum> getListOfSubscirebedSubforums() {
-			return listOfSubscirebedSubforums;
-		}
-		public void setListOfSubscirebedSubforums(ArrayList<Subforum> listOfSubscirebedSubforums) {
-			this.listOfSubscirebedSubforums = listOfSubscirebedSubforums;
-		}
-		public ArrayList<Theme> getListOfSavedThemes() {
-			return listOfSavedThemes;
-		}
-		public void setListOfSavedThemes(ArrayList<Theme> listOfSavedThemes) {
-			this.listOfSavedThemes = listOfSavedThemes;
-		}
-		public ArrayList<Comment> getListOfSavedComments() {
-			return listOfSavedComments;
-		}
-		public void setListOfSavedComments(ArrayList<Comment> listOfSavedComments) {
-			this.listOfSavedComments = listOfSavedComments;
-		}
-		
-		
-		
-		
+	private String username;
+	private String password;
+	private String firstName;
+	private String lastName;
+	private Role role;
+	private String contactPhone;
+	private String email;
+	private String dateOfRegistration;
+	private List<Subforum> listOfSubscirebedSubforums;
+	private List<Theme> listOfSavedThemes;
+	private List<Comment> listOfSavedComments;
+
+	public User() {
+	}
+
+	public User(String username, String password, String firstName, String lastName, String contactPhone, String email,
+			String dateOfRegistration, Role role) {
+		super();
+		this.username = username;
+		this.password = password;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.role = role;
+		this.contactPhone = contactPhone;
+		this.email = email;
+		this.dateOfRegistration = dateOfRegistration;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
+	}
+
+	public enum Role {
+		USER, MODERATOR, ADMINISTRATOR
+	};
+
+	public String getContactPhone() {
+		return contactPhone;
+	}
+
+	public void setContactPhone(String contactPhone) {
+		this.contactPhone = contactPhone;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getDateOfRegistration() {
+		return dateOfRegistration;
+	}
+
+	public void setDateOfRegistration(String dateOfRegistration) {
+		this.dateOfRegistration = dateOfRegistration;
+	}
+
+	public List<Subforum> getListOfSubscirebedSubforums() {
+		return listOfSubscirebedSubforums;
+	}
+
+	public void setListOfSubscirebedSubforums(ArrayList<Subforum> listOfSubscirebedSubforums) {
+		this.listOfSubscirebedSubforums = listOfSubscirebedSubforums;
+	}
+
+	public List<Theme> getListOfSavedThemes() {
+		return listOfSavedThemes;
+	}
+
+	public void setListOfSavedThemes(ArrayList<Theme> listOfSavedThemes) {
+		this.listOfSavedThemes = listOfSavedThemes;
+	}
+
+	public List<Comment> getListOfSavedComments() {
+		return listOfSavedComments;
+	}
+
+	public void setListOfSavedComments(ArrayList<Comment> listOfSavedComments) {
+		this.listOfSavedComments = listOfSavedComments;
+	}
+
+	@Override
+	public String toString() {
+		return "firstName : " + this.firstName + ", lastName: " + this.lastName;
+	}
+
 }

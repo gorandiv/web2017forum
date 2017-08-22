@@ -1,0 +1,46 @@
+<div class="container" ng-controller="registrationPageController">
+	<div id="login-box">
+		<div class="logo">
+			<img src="http://lorempixel.com/output/people-q-c-100-100-1.jpg" class="img img-responsive img-circle center-block"/>
+			<h1 class="logo-caption"><span class="tweak">R</span>egister</h1>
+		</div><!-- /.logo -->
+	
+	<div class="controls">
+		<div class="form-group">	
+			<label for="username" class="control-label"> Username: </label>  
+			<input type = "text" class="form-control" id="username" ng-model="user.username" placeholder="Input username"> 
+		</div>
+		<div class="form-group">	
+			<label for="password" class="control-label"> Password: </label>  
+			<input type = "password" class="form-control" id="password" ng-model="user.password" placeholder="Input password"> 
+		</div>
+		<div class="form-group">	
+			<label for="fistName" class="control-label"> First Name: </label>  
+			<input type = "text" class="form-control" id="firstName" ng-model="user.firstName" placeholder="Input first name"> 
+		</div>
+				<div class="form-group">	
+			<label for="lastName" class="control-label"> Last Name: </label>  
+			<input type = "text" class="form-control" id="lastName" ng-model="user.lastName" placeholder="Input last name"> 
+		</div>
+		<div class="form-group">
+			<label for="contactPhone" class="control-label"> Contact Phone: </label>  
+			<input type = "text" class="form-control" id="contactPhone" ng-model="user.contactPhone" placeholder="Input contact phone"> 
+		</div>
+		<div class="form-group">
+			<label for="email" class="control-label"> E-mail: </label>  
+			<input type = "text" class="form-control" id="email" ng-model="user.email" placeholder="Input e-mail"> 
+		</div>
+		<div class="form-group">
+			<label for="dateOfRegistration" class="control-label"> Date of registration: </label>  
+			<input type = "text" class="form-control" id="dateOfRegistration" ng-model="user.dateOfRegistration" placeholder="Input date"> 
+		</div>
+
+
+		<div class="form-group text-danger" ng-if="errorMessage">{{ errorMessage }}</div>
+		<div class="form-group">	
+			<button type="submit" class="btn btn-default btn-block btn-custom" ng-click="register(user)"> Register </button>
+		</div>
+	</div>
+	</div>
+</div>
+<div id="particles-js"></div>
