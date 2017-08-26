@@ -16,6 +16,7 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="navbar-collapse-3">
           <ul class="nav navbar-nav navbar-right">
+          	<li><a ng-click="goToUserHome()">Home</a></li>
             <li><a ng-click="goToInbox()">Inbox</a></li>
             <li><a ng-if="isAdmin()" ng-click="goToCreateForum()">Create Forum</a></li>
             <li><a ng-if="isAdmin()" ng-click="goToUserRole()">Edit User Role</a></li>
@@ -36,7 +37,59 @@
       </div><!-- /.container -->
     </nav><!-- /.navbar -->
     
-   <div class="container" ng-show="inbox">
+<div class="container" ng-show="userHome" ng-controller="subforumController">
+		<div class="row"">
+			<div class="panel panel-default">
+	        <div class="panel-heading clearfix">
+	          <h3 class="panel-title">User Home</h3>
+	         </div>
+				<table class="table table-striped">
+				    <thead>
+				      <tr>
+				        <th>Name</th>
+				        <th>Description</th>
+				        <th>Icon</th>
+				        <th ng-if="isAdmin()">Delete</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr ng-repeat="s in subforums">
+				        <td>{{s.name}}</td>
+				        <td>{{s.description}}</td>
+				        <td><img ng-src="icons/{{s.icon}}" height="48px" width="48px"></td>
+				        <td ng-if="isAdmin()"><button type="button" class="btn btn-success" ng-click="removeSubforum(s)" data-toggle="modal" data-target="#deleteModal">Delete forum</button></td>
+				      </tr>
+				    </tbody>
+				  </table>
+		  </div>
+		</div>
+		
+		<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"  style="display: none;">
+    	  <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-header">
+			      
+			          <h4 class="modal-title">Delete subforum</h4>
+			        </div>
+			        <div class="modal-body">
+			          <div class="form-group">
+			          		<label>Are you sure to want to delete subforum?</label>
+			          </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-warning" data-dismiss="modal" ng-click="deleteSubforum()">Delete</button>
+			          <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
+			        </div>
+			   	   </div>
+				</div>	
+			</div>     
+		</div>  
+</div>
+    
+    
+    
+    
+    
+  <div class="container" ng-show="inbox">
 	<div class="row">
 		<div class="panel panel-default">
         <div class="panel-heading clearfix">
@@ -173,7 +226,7 @@
 			</div>     
 		</div>  
 	</div>	
-		<div class="container" ng-show="createForum">
+		<div class="container" ng-show="createForum" ng-controller="subforumController">
 			<div class="row">
 				<div class="panel panel-default">
 		        <div class="panel-heading clearfix">
@@ -183,24 +236,31 @@
 		            <form role="form" class="form-horizontal">
 		                <div class="form-group">
 		                  <label class="col-sm-2" for="inputTo">Name</label>
-		                  <div class="col-sm-10"><input type="text" ng-model="forum.name" class="form-control" id="forumName"></div>
+		                  <div class="col-sm-10"><input type="text" ng-model="subforum.name" class="form-control" id="forumName"></div>
 		                </div>
 		                <div class="form-group">
 		                  <label class="col-sm-2" for="inputBody">Description</label>
-		                  <div class="col-sm-10"><input type="text" ng-model="forum.description" class="form-control" id="forumDescription"></div>
+		                  <div class="col-sm-10"><input type="text" ng-model="subforum.description" class="form-control" id="forumDescription"></div>
 		                </div>
 		                <div class="form-group">
-		                  <label class="col-sm-2" for="inputBody">Icon</label>
-		                  <div class="col-sm-10"><input type="icon" ng-model="forum.icon" class="form-control" id="forumIcon"></div>
-		                </div>
-		                <button type="button" class="btn btn-success" ng-click="sendMessage()">Create Forum</button>
+		                	<div class="fileupload fileupload-new" data-provides="fileupload"></div>
+		                		<div class="input-append">
+		                			<div class="uneditable-input span3">
+		                				<i class="icon-file fileupload-exists"></i>
+		                				<span class="fileupload-preview" ng-model="userType"></span>
+		                			</div>
+									<span class="btn btn-file">
+										<span class="fileupload-new">Choose icon:</span>									
+										<input type="file" ng-model="upFile" onchange="angular.element(this).scope().setFileEventListener(this)" />
+									</span>		                
+								</div>
+							</div> 
+							
+							<button type="button" class="btn btn-success" ng-click="createSubforum()">Create Forum</button>	
+						
 		            </form>
 		        </div>
 		      </div>
 			</div>
 		</div>
-		
-	
-	
-	
 </div>

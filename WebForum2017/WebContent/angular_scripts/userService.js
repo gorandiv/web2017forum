@@ -48,3 +48,35 @@ app.factory('messagesFactory', function($http){
 		
 	return factory;
 });
+
+
+app.factory('subforumsFactory', function($http){
+	
+	console.log("Usao sam u subforumsFactory, metoda addSubforum");
+	
+	var factory = {};
+
+	factory.getSubforum = function(){
+		return $http.get('/WebForum2017/rest/subforums/getSubforum');
+	}
+	
+	factory.deleteSubforum = function(subforum){
+		return $http.post('/WebForum2017/rest/subforums/deleteSubforum',subforum);
+	}
+	
+	factory.addSubforum = function(subforum, uploadedFile){
+		
+		console.log(subforum);
+		
+		var formData = new FormData();
+		formData.append("file", uploadedFile);
+		formData.append("name", subforum.name);
+		formData.append("description", subforum.description);
+		formData.append("responsibleModerator", subforum.responsibleModerator);
+		return $http.post('/WebForum2017/rest/subforums/addSubforum', formData, { headers: { 'Content-Type': undefined}, transformRequest : angular.identity});
+		}
+	
+	return factory;
+});
+
+

@@ -106,6 +106,7 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 	$scope.inbox = false;
 	$scope.editUserRole = false;
 	$scope.createForum = false;
+	$scope.userHome = false;
 			
 	
 	$scope.messages = [];
@@ -116,18 +117,28 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 		$scope.inbox = true;
 		$scope.editUserRole = false;
 		$scope.createForum = false;
+		$scope.userHome = false;
 	}
 	
 	$scope.goToUserRole = function(){
 		$scope.editUserRole = true;
 		$scope.inbox = false;
 		$scope.createForum = false;
+		$scope.userHome = false;
 	}
 	
 	$scope.goToCreateForum = function(){
 		$scope.editUserRole = false;
 		$scope.inbox = false;
 		$scope.createForum = true;
+		$scope.userHome = false;
+	}
+	
+	$scope.goToUserHome = function(){
+		$scope.userHome = true;
+		$scope.editUserRole = false;
+		$scope.inbox = false;
+		$scope.createForum = false;
 	}
 	
 	$scope.editUser = function(u){
@@ -139,6 +150,13 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 		usersFactory.editUserRole(username, role).success(function(data){			
 		});
 		toastr.success("User role changed!")
+		
+		for(i=0; i<$scope.users.length; i++){
+			if($scope.users[i].username == username){
+				$scope.users[i].role = role;
+			}
+		}
+		
 	}
 	
 
@@ -199,4 +217,82 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 	
 });
 
+app.controller('subforumController',function($localStorage,$cookies, $rootScope, $scope, $location, usersFactory, subforumsFactory){
+
+	console.log("evo me u subForumController-u");
 	
+	$scope.subforums = [];
+	
+	$scope.activeUser = $cookies.getObject("activeUser");
+	$scope.subforum =  {name: null, description: null, icon:null, moderators: null, listOfRules : null, responsibleModerator : $scope.activeUser.username };
+	
+	subforumsFactory.getSubforum().success(function(data){
+		console.log(data);
+		$scope.subforums = data;
+	});
+	
+	$scope.removeSubforum = function(s){
+		console.log("removeSubforum angular fja");
+		$scope.prom = s;
+	}
+	
+	$scope.deleteSubforum = function(){
+		subforumsFactory.deleteSubforum($scope.prom);
+		for(i=0; i<$scope.subforums.length; i++){
+			if($scope.subforums[i].name == $scope.prom.name){
+				$scope.subforums.splice(i,1);
+			}
+		}
+		toastr.success("Deleted subforum.");
+	}
+	
+	$scope.createSubforum = function () {
+		subforumsFactory.addSubforum($scope.subforum).success(function(data){
+		   	if(data == "Registered subforum"){
+		   		toastr.info("This subforum already exists!");
+		   	}else{
+		   		toastr.info("You created subforum successfully!");
+		   	}
+		   });
+	    
+	  };
+	  
+	 $scope.setFileEventListener = function(element) {
+		 $scope.uploadedFile= element.files[0];
+	 } 
+	 
+	 $scope.createSubforum = function() {
+		 createSubforum();
+		 
+	 }
+	 
+	 function createSubforum(){
+		 if(!$scope.uploadedFile){
+			 return;
+		 }
+		 else if(!$scope.subforum.name){
+			 toastr.warning("You need to input subforum's name.");
+		 }
+		 else if(!$scope.subforum.description){
+			 toastr.warning("You need to input subforum's description");
+		 }
+		 else {
+					subforumsFactory.addSubforum($scope.subforum, $scope.uploadedFile).success(function(data){
+					   	if(data == "Registered subforum"){
+					   		toastr.info("You created subforum successfully!");
+					   	}else{
+					   		toastr.info("This subforum already exists!");
+					   	}
+					   });
+		 		}
+		 $scope.subforum.name = null;
+		 $scope.subforum.description = null;
+		 
+	 
+	 }
+	 
+	 	
+	 
+	 
+	 
+});
