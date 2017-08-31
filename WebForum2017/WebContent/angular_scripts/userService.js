@@ -64,6 +64,14 @@ app.factory('subforumsFactory', function($http){
 		return $http.post('/WebForum2017/rest/subforums/deleteSubforum',subforum);
 	}
 	
+	factory.followSubforum = function(username, subforum){
+		return $http.post('/WebForum2017/rest/subforums/followSubforum/' + username, subforum);
+	}
+	
+	factory.getFollowSubforum = function(username){
+		return $http.get('/WebForum2017/rest/subforums/getFollowedSubforum/' + username);
+	}
+	
 	factory.addSubforum = function(subforum, uploadedFile){
 		
 		console.log(subforum);
@@ -76,6 +84,24 @@ app.factory('subforumsFactory', function($http){
 		return $http.post('/WebForum2017/rest/subforums/addSubforum', formData, { headers: { 'Content-Type': undefined}, transformRequest : angular.identity});
 		}
 	
+	return factory;
+});
+
+app.factory('themesFactory', function($http){
+	var factory = {};
+	
+	factory.createTheme = function(theme) {
+		return $http.post('/WebForum2017/rest/themes/createTheme', theme);
+	}
+	
+	factory.getTheme = function(){
+		return $http.get('/WebForum2017/rest/themes/getTheme');
+	}
+	
+	factory.deleteTheme = function(theme){
+		return $http.post('/WebForum2017/rest/themes/deleteTheme',theme);
+	}
+		
 	return factory;
 });
 

@@ -1,7 +1,6 @@
 package model;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -16,9 +15,9 @@ public class User {
 	private String contactPhone;
 	private String email;
 	private String dateOfRegistration;
-	private List<Subforum> listOfSubscirebedSubforums;
-	private List<Theme> listOfSavedThemes;
-	private List<Comment> listOfSavedComments;
+	private ArrayList<Subforum> listOfSubscribedSubforums = new ArrayList<Subforum>();
+	private ArrayList<Theme> listOfSavedThemes = new ArrayList<Theme>();
+	private ArrayList<Comment> listOfSavedComments = new ArrayList<Comment>();
 
 	public User() {
 	}
@@ -104,15 +103,15 @@ public class User {
 		this.dateOfRegistration = dateOfRegistration;
 	}
 
-	public List<Subforum> getListOfSubscirebedSubforums() {
-		return listOfSubscirebedSubforums;
+	public ArrayList<Subforum> getListOfSubscribedSubforums() {
+		return listOfSubscribedSubforums;
 	}
 
-	public void setListOfSubscirebedSubforums(ArrayList<Subforum> listOfSubscirebedSubforums) {
-		this.listOfSubscirebedSubforums = listOfSubscirebedSubforums;
+	public void setListOfSubscribedSubforums(ArrayList<Subforum> listOfSubscribedSubforums) {
+		this.listOfSubscribedSubforums = listOfSubscribedSubforums;
 	}
 
-	public List<Theme> getListOfSavedThemes() {
+	public ArrayList<Theme> getListOfSavedThemes() {
 		return listOfSavedThemes;
 	}
 
@@ -120,7 +119,7 @@ public class User {
 		this.listOfSavedThemes = listOfSavedThemes;
 	}
 
-	public List<Comment> getListOfSavedComments() {
+	public ArrayList<Comment> getListOfSavedComments() {
 		return listOfSavedComments;
 	}
 
@@ -133,4 +132,16 @@ public class User {
 		return "firstName : " + this.firstName + ", lastName: " + this.lastName;
 	}
 
+	public void addSubforum(Subforum subforum) {
+		if (listOfSubscribedSubforums == null) {
+			this.listOfSubscribedSubforums = new ArrayList<Subforum>();
+			listOfSubscribedSubforums.add(subforum);
+		} else {
+			this.listOfSubscribedSubforums.add(subforum);
+		}
+	}
+
+	public void removeSubforum(Subforum subforum) {
+		this.listOfSubscribedSubforums.remove(subforum);
+	}
 }

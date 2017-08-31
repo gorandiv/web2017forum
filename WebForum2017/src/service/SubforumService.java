@@ -13,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -21,7 +22,9 @@ import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 import file.SubforumFileController;
+import file.UserFileController;
 import model.Subforum;
+import model.User;
 
 @Path("/subforums")
 public class SubforumService {
@@ -95,19 +98,63 @@ public class SubforumService {
 		return listOfSubforum;
 	}
 
+	// tu sam stao
+	@POST
+	@Path("/followSubforum/{username}")
+	@Produces(MediaType.TEXT_PLAIN)
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String followSubforum(@PathParam(value = "username") String username, Subforum subforum)
+			throws FileNotFoundException, IOException {
+		ArrayList<User> listOfUsers = UserFileController.readUser(config);
+		for (User u : listOfUsers) {
+			if (u.getUsername().equals(username)) {
+				u.addSubforum(subforum);
+			}
+		}
+		UserFileController.writeUser(config, listOfUsers);
+		return "Subforum are followed";
+	}
+
+	@GET
+	@Path("/getFollowedSubforum/{username}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<Subforum> getFollowedSubforum(@PathParam(value = "username") String username)
+			throws FileNotFoundException, IOException {
+		ArrayList<User> listOfUsers = UserFileController.readUser(config);
+		for (User u : listOfUsers) {
+			if (u.getUsername().equals(username)) {
+				return u.getListOfSubscribedSubforums();
+			}
+		}
+		return null;
+	}
+
 	@POST
 	@Path("/deleteSubforum")
 	@Produces(MediaType.TEXT_PLAIN)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String deleteSubforum(Subforum subforum) throws FileNotFoundException, IOException {
-		ArrayList<Subforum> listOfSubforum = SubforumFileController.readSubforum(config);
+		ArrayList<Subforum> listOfSubforums = SubforumFileController.readSubforum(config);
+		ArrayList<User> listOfUsers = UserFileController.readUser(config);
 		System.out.println("usao sam u deleteSubforum java metoda");
-		for (int i = 0; i < listOfSubforum.size(); i++) {
-			if (listOfSubforum.get(i).getName().equals(subforum.getName())) {
-				listOfSubforum.remove(i);
+
+		for (int i = 0; i < listOfUsers.size(); i++) {
+			ArrayList<Subforum> listOfFollowedSubforum = listOfUsers.get(i).getListOfSubscribedSubforums();
+			for (int k = 0; k < listOfFollowedSubforum.size(); k++) {
+				if (listOfFollowedSubforum.get(k).getName().equals(subforum.getName())) {
+					listOfUsers.get(i).removeSubforum(listOfFollowedSubforum.get(k));
+				}
 			}
 		}
-		SubforumFileController.writeSubforum(config, listOfSubforum);
+
+		UserFileController.writeUser(config, listOfUsers);
+
+		for (int i = 0; i < listOfSubforums.size(); i++) {
+			if (listOfSubforums.get(i).getName().equals(subforum.getName())) {
+				listOfSubforums.remove(i);
+			}
+		}
+		SubforumFileController.writeSubforum(config, listOfSubforums);
 		return "subforum deleted!";
 	}
 

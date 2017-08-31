@@ -19,6 +19,7 @@
           	<li><a ng-click="goToUserHome()">Home</a></li>
             <li><a ng-click="goToInbox()">Inbox</a></li>
             <li><a ng-if="isAdmin()" ng-click="goToCreateForum()">Create Forum</a></li>
+            <li><a ng-click="goToFollowedForum()">Followed Forum</a></li>
             <li><a ng-if="isAdmin()" ng-click="goToUserRole()">Edit User Role</a></li>
             <li><a ng-click="logout()">LogOut</a></li>
             <li>
@@ -54,7 +55,7 @@
 				    </thead>
 				    <tbody>
 				      <tr ng-repeat="s in subforums">
-				        <td>{{s.name}}</td>
+				        <td><a href="" ng-click= "showThisSubforum(s)">{{s.name}}</a></td>
 				        <td>{{s.description}}</td>
 				        <td><img ng-src="icons/{{s.icon}}" height="48px" width="48px"></td>
 				        <td ng-if="isAdmin()"><button type="button" class="btn btn-success" ng-click="removeSubforum(s)" data-toggle="modal" data-target="#deleteModal">Delete forum</button></td>
@@ -83,10 +84,122 @@
 				</div>	
 			</div>     
 		</div>  
+		
+	<div class="container" ng-show="showSubforum">
+		<div class="row">
+			<div class="panel panel-default">
+	        <div class="panel-heading clearfix">
+	          <h3 class="panel-title">Subforum {{activeSubforum.name}}</h3>
+	        </div>
+	        <div class="panel-body">
+	            <form role="form" class="form-horizontal">
+	                <button type="button" ng-disabled="followButton" class="btn btn-info" ng-click="followSubforum(activeSubforum)">Follow subforum</button>
+	                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#themesModal" ng-click="showCreateTheme(activeSubforum)">Create theme</button>
+	            </form>
+
+	        </div>
+      		</div>
+		</div>
+		
+		<div class="modal fade" id="themesModal" tabindex="-1" role="dialog"  style="display: none;">
+    	  <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-header">
+			      
+			          <h4 class="modal-title">Create {{activeSubforum.name}}'s theme</h4>
+			        </div>
+			        <div class="modal-body">
+			          <div class="form-group">
+					      <label>Title:</label>
+					      <input type="text" class="form-control" id="name" ng-model="theme.name">
+					  </div>
+					  <div class="form-group">
+					  	<label>Type:</label>
+		
+					  </div>
+					  <div class="form-group">
+					  	  <label>Content:</label>
+					  	  <input type="text" class="form-control" id="content" ng-model="theme.content">
+			          </div>
+
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="createTheme()">Create theme</button>
+			          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
+			          
+			        </div>
+			   	   </div>
+				</div>	
+			</div>     
+		</div>  
+		<div class="row">
+				 <table class="table table-striped">
+				    <thead>
+				      <tr>
+				        <th>Theme's name</th>
+				        <th>Theme's content</th>
+				        <th>Theme's author</th>
+				        <th>Delete theme</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr ng-repeat="t in themes">
+				        <td>{{t.name}}</td>
+				        <td>{{t.content}}</td>
+				        <td>{{t.author}}</td>
+				        <td><button class="btn btn-warning"  ng-click="removeTheme(t)" data-toggle="modal" data-target="#deleteThemeModal">Delete theme</button></td>
+				      </tr>
+				    </tbody>
+				  </table>
+		
+		</div>
+		
+		<div class="modal fade" id="deleteThemeModal" tabindex="-1" role="dialog"  style="display: none;">
+    	  <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-header">
+			      
+			          <h4 class="modal-title">Delete theme</h4>
+			        </div>
+			        <div class="modal-body">
+			          <div class="form-group">
+			          		<label>Are you sure to want to delete theme?</label>
+			          </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-warning" data-dismiss="modal" ng-click="deleteTheme()">Delete</button>
+			          <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
+			        </div>
+			   	   </div>
+				</div>	
+			</div>     
+		</div>  
+	</div>
+		
 </div>
     
     
-    
+<div class="container" ng-show="followedForum" ng-controller="subforumController">
+		<div class="row"">
+			<div class="panel panel-default">
+	        <div class="panel-heading clearfix">
+	          <h3 class="panel-title">Followed subforum</h3>
+	         </div>
+				<table class="table table-striped">
+				    <thead>
+				      <tr>
+				        <th>Name</th>
+				        <th>Description</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				      <tr ng-repeat="s in followedSubforum">
+				        <td>{{s.name}}</td>
+				        <td>{{s.description}}</td>
+				      </tr>
+				    </tbody>
+				  </table>
+		  </div>
+		</div>
+</div>		
     
     
   <div class="container" ng-show="inbox">
