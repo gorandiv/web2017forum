@@ -101,8 +101,32 @@ app.factory('themesFactory', function($http){
 	factory.deleteTheme = function(theme){
 		return $http.post('/WebForum2017/rest/themes/deleteTheme',theme);
 	}
+	
+	factory.saveTheme = function(username, theme){
+		return $http.post('/WebForum2017/rest/themes/saveTheme/' + username, theme);
+	}
+	
+	factory.getSavedTheme = function(username){
+		return $http.get('/WebForum2017/rest/themes/getSavedTheme/' + username);
+	}
+	
+	factory.editTheme = function(name, content){
+		console.log("usao sam u themes factory, editTheme metoda");
+		return $http.post('/WebForum2017/rest/themes/editTheme/' + name + '/' + content);
+	}
 		
 	return factory;
 });
 
-
+app.factory('commentsFactory', function($http){
+	
+	var factory = {};
+	
+	factory.commentTheme = function(comment) {
+		return $http.post('/WebForum2017/rest/messages/sendMessage', {"receiver":message.receiver, "sender":message.sender, 
+			"seen" : message.seen, "content" : message.content});
+	}
+	
+	return factory;
+	
+});

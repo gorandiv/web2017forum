@@ -235,7 +235,7 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 	
 });
 
-app.controller('subforumController',function($localStorage,$cookies, $rootScope, $scope, $filter ,$location, usersFactory, subforumsFactory, themesFactory){
+app.controller('subforumController',function($localStorage,$cookies, $rootScope, $scope, $filter ,$location, usersFactory, subforumsFactory, themesFactory, commentsFactory){
 
 	console.log("evo me u subForumController-u");
 	
@@ -243,6 +243,7 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 	$scope.followedSubforum = [];
 	$scope.subforums = [];
 	$scope.followButton = false;
+	$scope.saveThemeButton = false;
 
 	
 	$scope.activeUser = $cookies.getObject("activeUser");
@@ -252,8 +253,10 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 	var date = new Date();
 	var newDate = $filter('date')(date,"dd-MM-yyyy");
 	
-	$scope.theme = {themesSubforum : null , name : "", type : null, author : $scope.activeUser.username, comments: null, content : "" , dateOfCreating : newDate, like : null , dislike : null};
+	$scope.theme = {themesSubforum : $scope.activeSubforum , name : "", type : "", author : $scope.activeUser.username, comments: null, content : "" , dateOfCreating : newDate, like : null , dislike : null};
 	$scope.themes =  [];
+	$scope.savedTheme = [];
+	$scope.activeTheme = null;
 	
 
 	
@@ -352,6 +355,7 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 	}
 	
 	$scope.createTheme = function(){
+		$scope.theme.themesSubforum = $scope.activeSubforum;
 		themesFactory.createTheme($scope.theme).success(function(data){
 		   	if(data == "Registered theme"){
 		   		toastr.info("You created theme successfully!");
@@ -377,12 +381,75 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 		}
 		toastr.success("Deleted theme.");
 	}
+	
+	$scope.saveTheme = function(t){
+		$scope.theme = t;
+		console.log($scope.t);
+		$scope.p = false;
+		for(i=0; i<$scope.savedTheme.length; i++){
+			if($scope.theme.name == $scope.savedTheme[i].name){
+				$scope.p = true;
+			}
+		}
+		if(!$scope.p){
+				themesFactory.saveTheme($scope.activeUser.username, $scope.theme);
+				toastr.success("Saved theme.");
+				$scope.saveThemeButton = true;
+			}
+		else{
+				toastr.warning("You are alredy saved theme.");
+			}
+		
+	}
 	  
 	
 	themesFactory.getTheme().success(function(data){
 		console.log(data);
 		$scope.themes = data;
 	});
+	
+	
+	themesFactory.getSavedTheme($scope.activeUser.username).success(function(data){
+		$scope.savedTheme = data;
+		console.log(data);
+	});
+	
+	$scope.editT = function(t){
+		$scope.name = t.name;
+		$scope.theme = {themesSubforum : null , name : "", type : "", author : $scope.activeUser.username, comments: null, content : t.content , dateOfCreating : newDate, like : null , dislike : null};
+	}
+	
+	$scope.editTheme = function(name, content){
+		themesFactory.editTheme(name, content).success(function(data){			
+		});
+		toastr.success("Theme edited!")
+		
+		for(i=0; i<$scope.themes.length; i++){
+			if($scope.themes[i].name == name){
+				$scope.themes[i].content = content;
+			}
+		}
+		
+	}
+	
+	$scope.commentT = function(t){
+		$scope.activeTheme = t;
+		$scope.name = t.name;
+		$scope.author = $scope.activeUser.username;
+	}
+	
+	$scope.commentTheme = function(){
+		$scope.comment.theme = $scope.activeTheme;
+		themesFactory.createTheme($scope.theme).success(function(data){
+		   	if(data == "Registered theme"){
+		   		toastr.info("You commented theme successfully!");
+		   		$scope.themes.push($scope.theme);
+		   	}else{
+		   		toastr.info("This comment already exists!");
+		   	}
+		   });
+
+	}
 	
 	 
 });

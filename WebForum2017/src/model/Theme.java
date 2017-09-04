@@ -2,7 +2,7 @@ package model;
 
 public class Theme {
 
-	private String themesSubforum;
+	private Subforum themesSubforum;
 	private String name;
 	private Type type;
 	private String author;
@@ -16,7 +16,7 @@ public class Theme {
 
 	}
 
-	public Theme(String themesSubforum, String name, Type type, String author, Comment comments, String content,
+	public Theme(Subforum themesSubforum, String name, Type type, String author, Comment comments, String content,
 			String dateOfCreating, int like, int dislike) {
 		super();
 		this.themesSubforum = themesSubforum;
@@ -31,11 +31,11 @@ public class Theme {
 
 	}
 
-	public String getThemesSubforum() {
+	public Subforum getThemesSubforum() {
 		return themesSubforum;
 	}
 
-	public void setThemesSubforum(String themesSubforum) {
+	public void setThemesSubforum(Subforum themesSubforum) {
 		this.themesSubforum = themesSubforum;
 	}
 

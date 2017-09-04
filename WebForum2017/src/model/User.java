@@ -144,4 +144,18 @@ public class User {
 	public void removeSubforum(Subforum subforum) {
 		this.listOfSubscribedSubforums.remove(subforum);
 	}
+
+	public void addTheme(Theme theme) {
+		if (listOfSavedThemes == null) {
+			this.listOfSavedThemes = new ArrayList<Theme>();
+			listOfSavedThemes.add(theme);
+		} else {
+			this.listOfSavedThemes.add(theme);
+		}
+	}
+
+	public void removeTheme(Theme theme) {
+		this.listOfSavedThemes.remove(theme);
+	}
+
 }

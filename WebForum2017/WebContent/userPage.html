@@ -110,22 +110,24 @@
 			        </div>
 			        <div class="modal-body">
 			          <div class="form-group">
-					      <label>Title:</label>
+					      <label>Name:</label>
 					      <input type="text" class="form-control" id="name" ng-model="theme.name">
-					  </div>
-					  <div class="form-group">
-					  	<label>Type:</label>
-		
 					  </div>
 					  <div class="form-group">
 					  	  <label>Content:</label>
 					  	  <input type="text" class="form-control" id="content" ng-model="theme.content">
 			          </div>
-
+			          <div class="form-group">
+					  	  <label class="control-label" for="type">Type:</label>
+						  <select class="form-control" ng-model="theme.type">
+						  		<option value="IMAGE">Image</option>
+						  		<option value="LINK">Link</option>
+						  		<option value="TEXT">Text</option>
+						  </select>					  	  
+			          </div>
 			        <div class="modal-footer">
 			          <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="createTheme()">Create theme</button>
 			          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-			          
 			        </div>
 			   	   </div>
 				</div>	
@@ -139,6 +141,9 @@
 				        <th>Theme's content</th>
 				        <th>Theme's author</th>
 				        <th>Delete theme</th>
+				        <th>Save theme</th>
+				        <th>Edit theme</th>
+				        <th>Comment</th>
 				      </tr>
 				    </thead>
 				    <tbody>
@@ -146,11 +151,70 @@
 				        <td>{{t.name}}</td>
 				        <td>{{t.content}}</td>
 				        <td>{{t.author}}</td>
-				        <td><button class="btn btn-warning"  ng-click="removeTheme(t)" data-toggle="modal" data-target="#deleteThemeModal">Delete theme</button></td>
+				        <td><button class="btn btn-danger"  ng-click="removeTheme(t)" data-toggle="modal" data-target="#deleteThemeModal">Delete</button></td>
+				        <td><button class="btn btn-info" ng-click="saveTheme(t)">Save</button></td>
+				        <td><button class="btn btn-success" ng-click="editT(t)"  data-toggle="modal" data-target="#editTheme">Edit</button>
+				        <td><button class="btn btn-warning" ng-click="commentT(t)" data-toggle= "modal" data-target="#commentThemeModal">Comment</button></td>
 				      </tr>
 				    </tbody>
 				  </table>
 		
+		</div>
+		
+		<div class="modal fade" id="editTheme" tabindex="-1" role="dialog"  style="display: none;">
+    	  <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-header">
+			      
+			          <h4 class="modal-title">Edit theme</h4>
+			        </div>
+			        <div class="modal-body">
+			          <div class="form-group">
+					      <label>Theme's name:</label>
+					      <input type="text" class="form-control" id="name" ng-model="name" disabled>
+					  </div>
+					  <div class="form-group">
+					      <label>Content:</label>
+					      <input type="text" class="form-control" id="content" ng-model="content">
+					  </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="editTheme(name,content)">Edit</button>
+			          <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+			          
+			        </div>
+			   	   </div>
+				</div>	
+			</div>     
+		</div>  
+		
+		<div class="modal fade" id="commentThemeModal" tabindex="-1" role="dialog"  style="display: none;">
+    	  <div class="modal-dialog">
+				<div class="modal-content">
+			        <div class="modal-header">
+			      
+			          <h4 class="modal-title">Comment theme</h4>
+			        </div>
+			        <div class="modal-body">
+			          <div class="form-group">
+					      <label>Theme's name:</label>
+					      <input type="text" class="form-control" id="name" ng-model="name" disabled>
+					  </div>
+					  <div class="form-group">
+					      <label>Theme's author:</label>
+					      <input type="text" class="form-control" id="author" ng-model="author" disabled>
+					  </div>
+					  <div class="form-group">
+					      <label>Comment:</label>
+					      <input type="text" class="form-control" id="textOfComment" ng-model="textOfComment">
+					  </div>
+			        <div class="modal-footer">
+			          <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="commentTheme()">Comment</button>
+			          <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
+			          
+			        </div>
+			   	   </div>
+				</div>	
+			</div>     
 		</div>
 		
 		<div class="modal fade" id="deleteThemeModal" tabindex="-1" role="dialog"  style="display: none;">
@@ -295,14 +359,14 @@
 				      <tr ng-repeat="u in users">
 				        <td>{{u.username}}</td>
 				        <td>{{u.role}}</td>
-				        <td><button type="button" class="btn btn-success" ng-click="editUser(u)"  data-toggle="modal" data-target="#myModal2">Edit user role</button></td>
+				        <td><button type="button" class="btn btn-success" ng-click="editUser(u)"  data-toggle="modal" data-target="#editUserModal">Edit user role</button></td>
 				      </tr>
 				    </tbody>
 				  </table>
 		  </div>
 		</div>
 		
-		<div class="modal fade" id="myModal2" tabindex="-1" role="dialog"  style="display: none;">
+		<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog"  style="display: none;">
     	  <div class="modal-dialog">
 				<div class="modal-content">
 			        <div class="modal-header">
