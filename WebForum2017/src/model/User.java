@@ -18,7 +18,6 @@ public class User {
 	private ArrayList<Subforum> listOfSubscribedSubforums = new ArrayList<Subforum>();
 	private ArrayList<Theme> listOfSavedThemes = new ArrayList<Theme>();
 	private ArrayList<Comment> listOfSavedComments = new ArrayList<Comment>();
-
 	public User() {
 	}
 
@@ -145,17 +144,32 @@ public class User {
 		this.listOfSubscribedSubforums.remove(subforum);
 	}
 
-	public void addTheme(Theme theme) {
-		if (listOfSavedThemes == null) {
+	public void saveTheme(Theme theme){
+		if(listOfSavedThemes == null){
 			this.listOfSavedThemes = new ArrayList<Theme>();
 			listOfSavedThemes.add(theme);
-		} else {
+		}else{
 			this.listOfSavedThemes.add(theme);
 		}
 	}
-
-	public void removeTheme(Theme theme) {
+	
+	public void removeSavedTheme(Theme theme){
 		this.listOfSavedThemes.remove(theme);
 	}
+	
+	public void saveComment(Comment comment){
+		if(listOfSavedComments == null){
+			listOfSavedComments = new ArrayList<Comment>();
+			listOfSavedComments.add(comment);
+		}else{
+			listOfSavedComments.add(comment);
+		}
+	}
+	
+	public void removeSavedComment(Comment comment){
+		listOfSavedComments.remove(comment);
+	}
+	
+	
 
 }

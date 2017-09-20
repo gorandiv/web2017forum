@@ -1,3 +1,4 @@
+//USERS FACTORY
 app.factory('usersFactory', function($http){
 	
 	
@@ -24,10 +25,16 @@ app.factory('usersFactory', function($http){
 		return $http.post('/WebForum2017/rest/users/editUserRole/' + username + '/' + role);
 	}
 	
+	factory.searchUsers = function(username) {
+		return $http.get('/WebForum2017/rest/users/searchUsers/' + username);
+	}
+	
 	
 	
 	return factory;
 });
+
+//MESSAGE FACTORY
 
 app.factory('messagesFactory', function($http){
 	var factory = {};
@@ -49,7 +56,7 @@ app.factory('messagesFactory', function($http){
 	return factory;
 });
 
-
+//SUBFORUM FACTORY
 app.factory('subforumsFactory', function($http){
 	
 	console.log("Usao sam u subforumsFactory, metoda addSubforum");
@@ -84,8 +91,15 @@ app.factory('subforumsFactory', function($http){
 		return $http.post('/WebForum2017/rest/subforums/addSubforum', formData, { headers: { 'Content-Type': undefined}, transformRequest : angular.identity});
 		}
 	
+	factory.searchSubforums = function(name) {
+		return $http.get('/WebForum2017/rest/subforums/searchSubforums/' + name);
+	}
+	
+	
 	return factory;
 });
+
+//THEME FACTORY
 
 app.factory('themesFactory', function($http){
 	var factory = {};
@@ -94,8 +108,8 @@ app.factory('themesFactory', function($http){
 		return $http.post('/WebForum2017/rest/themes/createTheme', theme);
 	}
 	
-	factory.getTheme = function(){
-		return $http.get('/WebForum2017/rest/themes/getTheme');
+	factory.getTheme = function(subforumName){
+		return $http.get('/WebForum2017/rest/themes/getTheme/' + subforumName);
 	}
 	
 	factory.deleteTheme = function(theme){
@@ -114,17 +128,70 @@ app.factory('themesFactory', function($http){
 		console.log("usao sam u themes factory, editTheme metoda");
 		return $http.post('/WebForum2017/rest/themes/editTheme/' + name + '/' + content);
 	}
+	
+	factory.searchThemes = function(name) {
+		return $http.get('/WebForum2017/rest/themes/searchThemes/' + name);
+	}
+	
+	factory.likeTheme = function(username, theme){
+		return $http.post('/WebForum2017/rest/themes/likeTheme/' + username, theme);
+	}
+	
+	factory.dislikeTheme = function(username, theme){
+		return $http.post('/WebForum2017/rest/themes/dislikeTheme/' + username, theme);
+	}
+	/*
+	factory.getLikedTheme = function(username){
+		return $http.get('/WebForum2017/rest/themes/getLikedTheme/' + username);
+	}
+	
+	factory.getDislikedTheme = function(username){
+		return $http.get('/WebForum2017/rest/themes/getDislikedTheme/' + username);
+	}*/
 		
 	return factory;
 });
+
+//COMMENT FACTORY
 
 app.factory('commentsFactory', function($http){
 	
 	var factory = {};
 	
-	factory.commentTheme = function(comment) {
-		return $http.post('/WebForum2017/rest/messages/sendMessage', {"receiver":message.receiver, "sender":message.sender, 
-			"seen" : message.seen, "content" : message.content});
+	factory.addComment = function(comment){
+		return $http.post('/WebForum2017/rest/comment/addComment', comment);
+	}
+	
+	factory.addSubcomment = function(comment){
+		return $http.post('/WebForum2017/rest/comment/addSubcomment', comment);
+	}
+	
+	factory.getComments = function(themeName){
+		return $http.get('/WebForum2017/rest/comment/getComments/' + themeName);
+	}
+	
+	factory.getSavedComments = function(username){
+		return $http.get('/WebForum2017/rest/comment/getSavedComments/' + username);
+	}
+	
+	factory.editComment = function(comment, oldCom){
+		return $http.post('/WebForum2017/rest/comment/editComment/' + oldCom, comment);
+	}
+	
+	factory.deleteComment = function(comment){
+		return $http.post('/WebForum2017/rest/comment/deleteComment', comment);
+	}
+	
+	factory.saveComment = function(username, comment){
+		return $http.post('/WebForum2017/rest/comment/saveComment/' + username, comment)
+	}
+	
+	factory.likeComment = function(username, comment){
+		return $http.post('/WebForum2017/rest/comment/likeComment/' + username, comment);
+	}
+	
+	factory.dislikeComment = function(username, comment){
+		return $http.post('/WebForum2017/rest/comment/dislikeComment/' + username, comment);
 	}
 	
 	return factory;

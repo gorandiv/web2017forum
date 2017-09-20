@@ -62,7 +62,7 @@ public class UserService {
 
 		listOfUser.add(u);
 		UserFileController.writeUser(config, listOfUser);
-		return " Registered monkey";
+		return "User registered";
 	}
 
 	@GET
@@ -75,13 +75,28 @@ public class UserService {
 
 		for (User u : listOfUser) {
 			if (u.getUsername().equals(username)) {
-				System.out.println("nasao je mene");
 			} else {
 				newListOfUser.add(u);
 			}
 		}
 
 		return newListOfUser;
+	}
+	
+	@GET
+	@Path("/searchUsers/{username}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<User> searchUsers(@PathParam(value = "username") String username) throws FileNotFoundException, IOException{
+		ArrayList<User> listOfUser =  UserFileController.readUser(config);
+		ArrayList<User> searchedUsers = new ArrayList<User>();
+		
+		for(User u : listOfUser){
+			if(u.getUsername().startsWith(username)){
+				searchedUsers.add(u);
+			}
+		}
+		
+		return searchedUsers;
 	}
 
 	@POST

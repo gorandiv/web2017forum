@@ -98,7 +98,6 @@ public class SubforumService {
 		return listOfSubforum;
 	}
 
-	// tu sam stao
 	@POST
 	@Path("/followSubforum/{username}")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -109,6 +108,7 @@ public class SubforumService {
 		for (User u : listOfUsers) {
 			if (u.getUsername().equals(username)) {
 				u.addSubforum(subforum);
+				break;
 			}
 		}
 		UserFileController.writeUser(config, listOfUsers);
@@ -152,10 +152,28 @@ public class SubforumService {
 		for (int i = 0; i < listOfSubforums.size(); i++) {
 			if (listOfSubforums.get(i).getName().equals(subforum.getName())) {
 				listOfSubforums.remove(i);
+				break;
 			}
 		}
 		SubforumFileController.writeSubforum(config, listOfSubforums);
 		return "subforum deleted!";
+	}
+	
+	@GET
+	@Path("/searchSubforums/{name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<Subforum> searchSubforums(@PathParam(value = "name") String name) throws FileNotFoundException, IOException{
+		ArrayList<Subforum> listOfSubforum =  SubforumFileController.readSubforum(config);
+		ArrayList<Subforum> searchedSubforums = new ArrayList<Subforum>();
+		
+		
+		for(Subforum s : listOfSubforum){
+			if(s.getName().startsWith(name)){
+				searchedSubforums.add(s);
+			}
+		}
+		
+		return searchedSubforums;
 	}
 
 }

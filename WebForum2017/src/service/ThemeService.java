@@ -14,8 +14,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
+import org.w3c.dom.ls.LSInput;
+
+import file.CommentFileController;
+import file.SubforumFileController;
 import file.ThemeFileController;
 import file.UserFileController;
+import model.Comment;
+import model.Subforum;
 import model.Theme;
 import model.User;
 
@@ -31,13 +37,18 @@ public class ThemeService {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String createTheme(Theme t) throws FileNotFoundException, IOException {
 		ArrayList<Theme> listOfTheme = ThemeFileController.readTheme(config);
+		ArrayList<Theme> listThemesOfSubforum = new ArrayList<Theme>();
 
-		for (Theme tt : listOfTheme) {
-			if (tt.getName().equals(t.getName())) {
-				return "Theme already exist";
-			}
+		for(Theme tt : listOfTheme){
+			if(t.getThemesSubforum().getName().equals(t.getThemesSubforum().getName()))
+				listThemesOfSubforum.add(tt);
 		}
-		Theme theme = new Theme(t.getThemesSubforum(), t.getName(), t.getType(), t.getAuthor(), null, t.getContent(),
+		
+		for (Theme tt : listThemesOfSubforum) {
+			if(tt.getName().equals(t.getName()))
+				return "Theme already exist";
+		}
+		Theme theme = new Theme(t.getThemesSubforum(), t.getName(), t.getType(), t.getAuthor(), t.getContent(),
 				t.getDateOfCreating(), 0, 0);
 		listOfTheme.add(theme);
 		ThemeFileController.writeTheme(config, listOfTheme);
@@ -46,12 +57,19 @@ public class ThemeService {
 	}
 
 	@GET
-	@Path("/getTheme")
+	@Path("/getTheme/{subforumName}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public ArrayList<Theme> getTheme() throws FileNotFoundException, IOException {
+	public ArrayList<Theme> getTheme(@PathParam(value = "subforumName") String subforumName) throws FileNotFoundException, IOException {
 		ArrayList<Theme> listOfThemes = ThemeFileController.readTheme(config);
+		ArrayList<Theme> listThemesOfSubforum = new ArrayList<Theme>();
+		
+		for(Theme t : listOfThemes){
+			if(t.getThemesSubforum().getName().equals(subforumName)){
+				listThemesOfSubforum.add(t);
+			}
+		}
 
-		return listOfThemes;
+		return listThemesOfSubforum;
 	}
 
 	@POST
@@ -61,13 +79,14 @@ public class ThemeService {
 	public String deleteTheme(Theme theme) throws FileNotFoundException, IOException {
 		ArrayList<Theme> listOfThemes = ThemeFileController.readTheme(config);
 		ArrayList<User> listOfUsers = UserFileController.readUser(config);
+		ArrayList<Comment> listoOfComments = CommentFileController.readComment(config);
 		System.out.println("usao sam u deleteTheme java metoda");
 
 		for (int i = 0; i < listOfUsers.size(); i++) {
 			ArrayList<Theme> listOfSavedTheme = listOfUsers.get(i).getListOfSavedThemes();
 			for (int k = 0; k < listOfSavedTheme.size(); k++) {
 				if (listOfSavedTheme.get(k).getName().equals(theme.getName())) {
-					listOfUsers.get(i).removeTheme(listOfSavedTheme.get(k));
+					listOfUsers.get(i).removeSavedTheme(listOfSavedTheme.get(k));
 				}
 			}
 		}
@@ -80,19 +99,26 @@ public class ThemeService {
 			}
 		}
 		ThemeFileController.writeTheme(config, listOfThemes);
-		return "theme deleted!";
+		
+		for(int i = 0; i < listoOfComments.size(); i++){
+			if(listoOfComments.get(i).getTheme().getName().equals(theme.getName())){
+				listoOfComments.remove(i);
+			}
+		}
+		CommentFileController.writeComment(config, listoOfComments);
+		return "Theme deleted";
 	}
 
 	@POST
 	@Path("/saveTheme/{username}")
-	@Produces(MediaType.TEXT_PLAIN)
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String saveTheme(@PathParam(value = "username") String username, Theme theme)
 			throws FileNotFoundException, IOException {
 		ArrayList<User> listOfUsers = UserFileController.readUser(config);
 		for (User u : listOfUsers) {
 			if (u.getUsername().equals(username)) {
-				u.addTheme(theme);
+				u.saveTheme(theme);
+				break;
 			}
 		}
 		UserFileController.writeUser(config, listOfUsers);
@@ -128,5 +154,98 @@ public class ThemeService {
 		ThemeFileController.writeTheme(config, listOfThemes);
 		return "Theme edited!";
 	}
+	
+	@POST
+	@Path("/likeTheme/{username}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String likeTheme(@PathParam(value = "username") String username, Theme theme) throws FileNotFoundException, IOException{
+		ArrayList<Theme> themes = ThemeFileController.readTheme(config);
+		ArrayList<User> users = UserFileController.readUser(config);
+		
+		for(int i = 0; i < themes.size(); i++){
+			if(themes.get(i).getName().equals(theme.getName())){
+				for(String user : themes.get(i).getUsersDisliked()){
+					if(user.equals(username))
+						return "You already disliked theme";
+				}
+				for(String user : themes.get(i).getUsersLiked()){
+					if(user.equals(username))
+						return "You already liked theme";
+				}
+				themes.get(i).setLike(themes.get(i).getLike() + 1);
+				themes.get(i).addUserLiked(username);
+				break;
+			}
+		}
+		ThemeFileController.writeTheme(config, themes);
+		for(User user : users){
+			ArrayList<Theme> userThemes = user.getListOfSavedThemes();
+			for(int j = 0; j < userThemes.size(); j++){
+				if(userThemes.get(j).getName().equals(theme.getName())){
+					userThemes.get(j).setLike(userThemes.get(j).getLike() + 1);
+					userThemes.get(j).addUserLiked(username);
+					break;
+				}
+			}
+		}
+		UserFileController.writeUser(config, users);
+		return "Theme liked";
+	}
+	
+	@POST
+	@Path("/dislikeTheme/{username}")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String dislikeTheme(@PathParam(value = "username") String username, Theme theme) throws FileNotFoundException, IOException{
+		ArrayList<Theme> themes = ThemeFileController.readTheme(config);
+		ArrayList<User> users = UserFileController.readUser(config);
+		
+		for(int i = 0; i < themes.size(); i++){
+			if(themes.get(i).getName().equals(theme.getName())){
+				for(String user : themes.get(i).getUsersDisliked()){
+					if(user.equals(username))
+						return "You already disliked theme";
+				}
+				for(String user : themes.get(i).getUsersLiked()){
+					if(user.equals(username))
+						return "You already liked theme";
+				}
+				themes.get(i).setDislike(themes.get(i).getDislike() + 1);
+				themes.get(i).addUserDisliked(username);
+				break;
+			}
+		}
+		ThemeFileController.writeTheme(config, themes);
+		for(User user : users){
+			ArrayList<Theme> userThemes = user.getListOfSavedThemes();
+			for(int j = 0; j < userThemes.size(); j++){
+				if(userThemes.get(j).getName().equals(theme.getName())){
+					userThemes.get(j).setDislike(userThemes.get(j).getDislike() + 1);
+					userThemes.get(j).addUserDisliked(username);
+					break;
+				}
+			}
+		}
+		UserFileController.writeUser(config, users);
+		return "Theme disliked";
+	}
+	
+	@GET
+	@Path("/searchThemes/{name}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public ArrayList<Theme> searchThemes(@PathParam(value = "name") String name) throws FileNotFoundException, IOException{
+		ArrayList<Theme> listOfThemes =  ThemeFileController.readTheme(config);
+		ArrayList<Theme> searchedThemes = new ArrayList<Theme>();
+		
+		
+		for(Theme t : listOfThemes){
+			if(t.getName().startsWith(name)){
+				searchedThemes.add(t);
+			}
+		}
+		
+		return searchedThemes;
+	}
+	
+	
 
 }

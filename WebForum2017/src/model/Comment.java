@@ -1,35 +1,39 @@
 package model;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Comment {
-
 	private Theme theme;
-	private User Author;
-	private Date dateOfComment;
-	private Comment parentsComment;
-	private Comment subComment;
-	private String textOfComment;
-	private int like;
-	private int dislike;
-	private boolean tagOfComment;
-
+	private String author;
+	private String creatingDate;
+	private Comment parent;
+	private ArrayList<Comment> children = new ArrayList<Comment>();
+	private String text;
+	private int likes;
+	private int dislikes;
+	private boolean changed;
+	private boolean deleted;
+	private ArrayList<String> usersLiked = new ArrayList<String>();
+	private ArrayList<String> usersDisliked = new ArrayList<String>();
+	
 	public Comment() {
-
+		super();
 	}
-
-	public Comment(Theme theme, User author, Date dateOfComment, Comment parentsComment, Comment subComment,
-			String textOfComment, int like, int dislike, boolean tagOfComment) {
+	
+	public Comment(Theme theme, String author, String creatingDate, Comment parent,
+			String text, int likes, int dislikes, boolean changed, boolean deleted) {
 		super();
 		this.theme = theme;
-		Author = author;
-		this.dateOfComment = dateOfComment;
-		this.parentsComment = parentsComment;
-		this.subComment = subComment;
-		this.textOfComment = textOfComment;
-		this.like = like;
-		this.dislike = dislike;
-		this.tagOfComment = tagOfComment;
+		this.author = author;
+		this.creatingDate = creatingDate;
+		this.parent = parent;
+		this.children = new ArrayList<Comment>();
+		this.text = text;
+		this.likes = likes;
+		this.dislikes = dislikes;
+		this.changed = changed;
+		this.deleted = deleted;
 	}
 
 	public Theme getTheme() {
@@ -40,67 +44,131 @@ public class Comment {
 		this.theme = theme;
 	}
 
-	public User getAuthor() {
-		return Author;
+	public String getAuthor() {
+		return author;
 	}
 
-	public void setAuthor(User author) {
-		Author = author;
+	public void setAuthor(String author) {
+		this.author = author;
 	}
 
-	public Date getDateOfComment() {
-		return dateOfComment;
+	public String getCreatingDate() {
+		return creatingDate;
 	}
 
-	public void setDateOfComment(Date dateOfComment) {
-		this.dateOfComment = dateOfComment;
+	public void setCreatingDate(String creatingDate) {
+		this.creatingDate = creatingDate;
 	}
 
-	public Comment getParentsComment() {
-		return parentsComment;
+	public Comment getParent() {
+		return parent;
 	}
 
-	public void setParentsComment(Comment parentsComment) {
-		this.parentsComment = parentsComment;
+	public void setParent(Comment parent) {
+		this.parent = parent;
 	}
 
-	public Comment getSubComment() {
-		return subComment;
+	public ArrayList<Comment> getChildren() {
+		return children;
 	}
 
-	public void setSubComment(Comment subComment) {
-		this.subComment = subComment;
+	public void setChildren(ArrayList<Comment> children) {
+		this.children = children;
 	}
 
-	public String getTextOfComment() {
-		return textOfComment;
+	public void addChild(Comment comment){
+		if(children == null){
+			children = new ArrayList<Comment>();
+			children.add(comment);
+		}else{
+			children.add(comment);
+		}
+	}
+	
+	public void removeChild(Comment comment){
+		children.remove(comment);
+	}
+	
+	public String getText() {
+		return text;
 	}
 
-	public void setTextOfComment(String textOfComment) {
-		this.textOfComment = textOfComment;
+	public void setText(String text) {
+		this.text = text;
 	}
 
-	public int getLike() {
-		return like;
+	public int getLikes() {
+		return likes;
 	}
 
-	public void setLike(int like) {
-		this.like = like;
+	public void setLikes(int likes) {
+		this.likes = likes;
 	}
 
-	public int getDislike() {
-		return dislike;
+	public int getDislikes() {
+		return dislikes;
 	}
 
-	public void setDislike(int dislike) {
-		this.dislike = dislike;
+	public void setDislikes(int dislikes) {
+		this.dislikes = dislikes;
 	}
 
-	public boolean isTagOfComment() {
-		return tagOfComment;
+	public boolean isChanged() {
+		return changed;
 	}
 
-	public void setTagOfComment(boolean tagOfComment) {
-		this.tagOfComment = tagOfComment;
+	public void setChanged(boolean changed) {
+		this.changed = changed;
 	}
+	
+	public ArrayList<String> getUsersLiked() {
+		return usersLiked;
+	}
+
+	public void setUsersLiked(ArrayList<String> usersLiked) {
+		this.usersLiked = usersLiked;
+	}
+
+	public void addUserLiked(String username) {
+		if(usersLiked == null){
+			usersLiked = new ArrayList<String>();
+			usersLiked.add(username);
+		}else{
+			usersLiked.add(username);
+		}
+	}
+	
+	public void removeUserLiked(String username){
+		usersLiked.remove(username);
+	}
+	
+	public ArrayList<String> getUsersDisliked() {
+		return usersDisliked;
+	}
+
+	public void setUsersDisliked(ArrayList<String> usersDisliked) {
+		this.usersDisliked = usersDisliked;
+	}
+	
+	public void addUserDisliked(String username) {
+		if(usersDisliked == null){
+			usersDisliked = new ArrayList<String>();
+			usersDisliked.add(username);
+		}else{
+			usersDisliked.add(username);
+		}
+	}
+	
+	public void removeUserDisliked(String username){
+		usersDisliked.remove(username);
+	}
+
+	public boolean isDeleted() {
+		return deleted;
+	}
+
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
+	}
+	
 }

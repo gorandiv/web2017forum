@@ -4,164 +4,233 @@
       <div class="container">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse-3">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" >Forum</a>
+          <a class="navbar-brand">Forumm</a>
         </div>
     
         <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="navbar-collapse-3">
+        <div class="collapse navbar-collapse">
           <ul class="nav navbar-nav navbar-right">
           	<li><a ng-click="goToUserHome()">Home</a></li>
-            <li><a ng-click="goToInbox()">Inbox</a></li>
-            <li><a ng-if="isAdmin()" ng-click="goToCreateForum()">Create Forum</a></li>
-            <li><a ng-click="goToFollowedForum()">Followed Forum</a></li>
+            <li><a ng-click="goToInbox()">Messages</a></li>
+            <li><a ng-if="isAdmin()" ng-click="goToCreateForum()">Subforums</a></li>
             <li><a ng-if="isAdmin()" ng-click="goToUserRole()">Edit User Role</a></li>
+            <li><a ng-click="goToSearch()">Search</a></li>
             <li><a ng-click="logout()">LogOut</a></li>
-            <li>
-              <a class="btn btn-default btn-outline btn-circle collapsed"  data-toggle="collapse" href="#nav-collapse3" aria-expanded="false" aria-controls="nav-collapse3">Search</a>
-            </li>
           </ul>
-          <div class="collapse nav navbar-nav nav-collapse slide-down" id="nav-collapse3">
-            <form class="navbar-form navbar-right" role="search">
-              <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search" />
-              </div>
-              <button type="submit" class="btn btn-danger"><span class="glyphicon glyphicon-search" aria-hidden="true"></span></button>
-            </form>
-          </div>
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container -->
     </nav><!-- /.navbar -->
     
 <div class="container" ng-show="userHome" ng-controller="subforumController">
-		<div class="row"">
-			<div class="panel panel-default">
-	        <div class="panel-heading clearfix">
-	          <h3 class="panel-title">User Home</h3>
-	         </div>
-				<table class="table table-striped">
-				    <thead>
-				      <tr>
-				        <th>Name</th>
-				        <th>Description</th>
-				        <th>Icon</th>
-				        <th ng-if="isAdmin()">Delete</th>
-				      </tr>
-				    </thead>
-				    <tbody>
-				      <tr ng-repeat="s in subforums">
-				        <td><a href="" ng-click= "showThisSubforum(s)">{{s.name}}</a></td>
-				        <td>{{s.description}}</td>
-				        <td><img ng-src="icons/{{s.icon}}" height="48px" width="48px"></td>
-				        <td ng-if="isAdmin()"><button type="button" class="btn btn-success" ng-click="removeSubforum(s)" data-toggle="modal" data-target="#deleteModal">Delete forum</button></td>
-				      </tr>
-				    </tbody>
-				  </table>
-		  </div>
+		<div class="container">
+			<div class="row"">
+				<div class="panel panel-success">
+		        <div class="panel-heading clearfix">
+		          <h3 class="panel-title">User Home</h3>
+		         </div>
+					<table class="table table-striped">
+					    <thead>
+					      <tr>
+					        <th>Name</th>
+					        <th>Description</th>
+					        <th>Icon</th>
+					        <th>Follow</th>
+					        <th ng-if="isAdmin()">Delete</th>
+					        <th>More options</th>
+					      </tr>
+					    </thead>
+					    <tbody>
+					      <tr ng-repeat="s in subforums">
+					        <td>{{s.name}}</a></td>
+					        <td>{{s.description}}</td>
+					        <td><img ng-src="icons/{{s.icon}}" height="48px" width="48px"></td>
+					        <td><button type="button" class="btn btn-info" ng-click="followSubforum(s)">Follow subforum</button></td>
+					        <td ng-if="isAdmin()"><button type="button" class="btn btn-success" ng-click="removeSubforum(s)" data-toggle="modal" data-target="#deleteModal">Delete forum</button></td>
+					      	<td><button type="button" class="btn btn-warning" ng-click="more(s)">More</button></td>
+					      </tr>
+					    </tbody>
+					  </table>
+			  </div>
+			</div>
 		</div>
 		
-		<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"  style="display: none;">
+			<div ng-show="subforumDetails">
+			<md-toolbar>
+				<div class="md-toolbar-tools">
+					<h3> {{ subforumDetail.name}} </h3>
+					<span flex></span>
+					<button type="submit" class="btn btn-warning" data-toggle="modal" data-target="#newThemeModal">Create theme</button>
+				</div>
+			</md-toolbar>
+			<br>
+		<div class="container">
+			<div class="row">
+				<div class="panel panel-default">
+					<div class="panel heading clearfix">
+						<label> Themes: </label>
+					</div>
+						<table class="table table-striped" >
+                                    <tbody>
+                                    	<tr ng-repeat="theme in themes">
+                                    		<td> <a href="" ng-click="openTheme(theme)">{{ theme.name }}</a></td>
+                                    		<td ng-if="theme.type == 'TEXT'"> {{ theme.content }} </td>
+                                    		<td ng-if="theme.type == 'LINK'"> <a href="{{theme.content}}">{{theme.content}}</a> </td>
+                                    		<td ng-if="theme.type == 'IMAGE'"> <img alt="ikonica" src="{{theme.content}}" height="50px" width="50px"> </td>
+                                    		<td> {{ theme.author }} </td>
+                                    		<td> {{ theme.dateOfCreating }} </td>
+                                    		<td> <button type="submit" class="btn btn-success" ng-click="saveTheme(theme)">Save</button> </td>
+                                    		<td> <button type="submit" class="btn btn-warning" ng-click="editT(theme)" data-toggle="modal" data-target="#editThemeModal">Edit</button> </td>
+                                    		<td><button class="btn btn-danger"  ng-click="removeTheme(theme)" data-toggle="modal" data-target="#deleteThemeModal">Delete</button></td>
+                                    		<td> 
+                                    			<label class="control-label" style="color: #B4886B; font-size: 25px"> {{theme.like}} </label>&nbsp;
+                                    			<button type="submit" class="btn btn-primary" ng-click="likeTheme(theme)">Like</button> 	
+                                    		</td>
+                                    		<td> 
+                                    			<label class="control-label" style="color: #B4886B; font-size: 25px"> {{theme.dislike}} </label>&nbsp;
+                                    			<button type="submit" class="btn btn-default" ng-click="dislikeTheme(theme)">Dislike</button> 
+                                    		</td>
+                                    	</tr>
+                                    </tbody>
+                         </table>
+                 </div>
+          	</div>
+       	</div>
+	</div>
+	
+		<div ng-show="themeDetails">
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<h3> {{ themeDetail.name }} </h3>&nbsp;&nbsp;&nbsp;
+				<h3 ng-if="themeDetail.type == 'TEXT'"> {{ themeDetail.content }} </h3>
+				<img src="{{themeDetail.content}}" alt="icon" height="50px" width="50px" ng-if="themeDetail.type == 'IMAGE'">
+				<a href="{{themeDetail.content}}" ng-if="themeDetail.type == 'LINK'">{{themeDetail.content}}</a>
+			</div>
+		</md-toolbar>
+		<br>
+		<div class="form-row">
+			<div class="form-group col-sm-8">
+				<div class="col-sm-2">
+					<label class="control-label"> Comment: </label>  
+				</div>
+				<div class="col-sm-10">
+					<input type = "text" class="form-control" id="name" ng-model="newCommentText" placeholder="Comment theme"> 
+				</div>
+			</div>
+			<div class="form-group col-sm-2">
+			    <button type="submit" class="btn btn-primary btn-sm" ng-click="createNewComment()">Comment</button>                  
+		    </div>
+		</div>
+		<br><br> 
+        
+        <div ng-repeat="comment in comments">
+        	<div class="form-row">
+        		<hr style="border-style: inset;border-width: 1px;">
+        		<label>#1</label>
+				<div class="form-group col-sm-12">
+					<div class="form-group col-sm-2" ng-if="comment.deleted == false">
+						<label>Author: </label>
+						<label class="control-label" style="color: #B4886B; font-size: 25px"> {{comment.author}} </label>  
+					</div>
+					<div class="form-group col-sm-2">
+						<label>Date: </label>
+						<label class="control-label" style="color: #B4886B; font-size: 22px"> {{comment.creatingDate}} </label> 
+					</div>
+					<div class="form-group col-sm-3" ng-if="comment.deleted == false">
+						<label>Text: </label>
+						<label class="control-label" style="color: #B4886B; font-size: 25px"> {{comment.text}} </label> 
+					</div>
+					<div class="form-group col-sm-2">
+						<label class="control-label" style="color: #B4886B; font-size: 25px"> {{comment.likes}} </label> 
+						<button type="button" class="btn btn-primary btn-sm" ng-click="likeComment(comment)">Like</button>
+					</div>
+					<div class="form-group col-sm-2">
+						<label class="control-label" style="color: #B4886B; font-size: 25px"> {{comment.dislikes}} </label> 
+						<button type="button" class="btn btn-default btn-sm" ng-click="dislikeComment(comment)">Dislike</button>
+					</div>
+				</div>
+				
+				<div class="form-group col-sm-12">
+					<div class="form-group col-sm-4">
+						<button type="submit" class="btn btn-success" ng-click="saveComment(comment)">Save</button> 
+	                    <button type="submit" class="btn btn-warning" ng-click="editComment(comment)" data-toggle="modal" data-target="#editCommentModal">Edit</button>
+	                    <button type="submit" class="btn btn-danger" ng-click="deleteComment(comment)">Delete</button>
+					</div>
+					<div class="form-group col-sm-4">	
+						<input type = "text" class="form-control" ng-model="subcomment.com" placeholder="reply"> 
+					</div>
+					<div class="form-group col-sm-2">	
+						<button type="submit" class="btn btn-primary btn-sm" ng-click="createNewSubcomment(comment)">Answer</button>                  
+					</div>
+				</div>
+				<hr style="border-style: inset;border-width: 1px;">
+			</div>
+			<div> <subcomment /></div>
+		</div>         
+	</div>
+	
+	
+	
+	<div class="modal fade" id="deleteThemeModal" tabindex="-1" role="dialog"  style="display: none;">
     	  <div class="modal-dialog">
 				<div class="modal-content">
 			        <div class="modal-header">
 			      
-			          <h4 class="modal-title">Delete subforum</h4>
+			          <h4 class="modal-title">Delete theme</h4>
 			        </div>
 			        <div class="modal-body">
 			          <div class="form-group">
-			          		<label>Are you sure to want to delete subforum?</label>
+			          		<label>Are you sure to want to delete theme?</label>
 			          </div>
 			        <div class="modal-footer">
-			          <button type="button" class="btn btn-warning" data-dismiss="modal" ng-click="deleteSubforum()">Delete</button>
+			          <button type="button" class="btn btn-warning" data-dismiss="modal" ng-click="deleteTheme()">Delete</button>
 			          <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
 			        </div>
 			   	   </div>
 				</div>	
 			</div>     
 		</div>  
-		
-	<div class="container" ng-show="showSubforum">
-		<div class="row">
-			<div class="panel panel-default">
-	        <div class="panel-heading clearfix">
-	          <h3 class="panel-title">Subforum {{activeSubforum.name}}</h3>
-	        </div>
-	        <div class="panel-body">
-	            <form role="form" class="form-horizontal">
-	                <button type="button" ng-disabled="followButton" class="btn btn-info" ng-click="followSubforum(activeSubforum)">Follow subforum</button>
-	                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#themesModal" ng-click="showCreateTheme(activeSubforum)">Create theme</button>
-	            </form>
-
-	        </div>
-      		</div>
-		</div>
-		
-		<div class="modal fade" id="themesModal" tabindex="-1" role="dialog"  style="display: none;">
-    	  <div class="modal-dialog">
+	
+	
+	
+	
+		<div id="newThemeModal" class="modal fade" role="dialog">
+			<div class="modal-dialog">
 				<div class="modal-content">
-			        <div class="modal-header">
-			      
-			          <h4 class="modal-title">Create {{activeSubforum.name}}'s theme</h4>
-			        </div>
-			        <div class="modal-body">
-			          <div class="form-group">
-					      <label>Name:</label>
-					      <input type="text" class="form-control" id="name" ng-model="theme.name">
-					  </div>
-					  <div class="form-group">
-					  	  <label>Content:</label>
-					  	  <input type="text" class="form-control" id="content" ng-model="theme.content">
-			          </div>
-			          <div class="form-group">
-					  	  <label class="control-label" for="type">Type:</label>
-						  <select class="form-control" ng-model="theme.type">
-						  		<option value="IMAGE">Image</option>
-						  		<option value="LINK">Link</option>
-						  		<option value="TEXT">Text</option>
-						  </select>					  	  
-			          </div>
-			        <div class="modal-footer">
-			          <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="createTheme()">Create theme</button>
-			          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-			        </div>
-			   	   </div>
-				</div>	
-			</div>     
-		</div>  
-		<div class="row">
-				 <table class="table table-striped">
-				    <thead>
-				      <tr>
-				        <th>Theme's name</th>
-				        <th>Theme's content</th>
-				        <th>Theme's author</th>
-				        <th>Delete theme</th>
-				        <th>Save theme</th>
-				        <th>Edit theme</th>
-				        <th>Comment</th>
-				      </tr>
-				    </thead>
-				    <tbody>
-				      <tr ng-repeat="t in themes">
-				        <td>{{t.name}}</td>
-				        <td>{{t.content}}</td>
-				        <td>{{t.author}}</td>
-				        <td><button class="btn btn-danger"  ng-click="removeTheme(t)" data-toggle="modal" data-target="#deleteThemeModal">Delete</button></td>
-				        <td><button class="btn btn-info" ng-click="saveTheme(t)">Save</button></td>
-				        <td><button class="btn btn-success" ng-click="editT(t)"  data-toggle="modal" data-target="#editTheme">Edit</button>
-				        <td><button class="btn btn-warning" ng-click="commentT(t)" data-toggle= "modal" data-target="#commentThemeModal">Comment</button></td>
-				      </tr>
-				    </tbody>
-				  </table>
-		
+					<div class="modal-header">
+			        	<button type="button" class="close" data-dismiss="modal">&times;</button>
+			        	<h3 class="modal-title">Create new theme</h3>
+			      	</div>
+			      	<div class="modal-body">
+			      		<div class="form-group">
+							<label class="control-label" for="name">Name:</label>
+							<input type="text" class="form-control" id="username" ng-model="theme.name">
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="type">Type:</label>
+							<select class="form-control" ng-model="theme.type">
+								<option value="IMAGE">Image</option>
+								<option value="LINK">Link</option>
+								<option value="TEXT">Text</option>
+							</select>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="content">Content:</label>
+							<input type="text" class="form-control" id="content" ng-model="theme.content">
+						</div>
+						
+			      	</div>
+			      	<div class="modal-footer">
+			      		<button type="button" class="btn btn-warning" data-dismiss="modal" ng-click="cancelNewTheme()">Close</button>
+			        	<button type="submit" class="btn btn-success pull-left" ng-click="createTheme()">Create</button>
+			      	</div>
+				</div>
+			</div>
 		</div>
 		
-		<div class="modal fade" id="editTheme" tabindex="-1" role="dialog"  style="display: none;">
+		
+		
+		
+		<div class="modal fade" id="editThemeModal" tabindex="-1" role="dialog"  style="display: none;">
     	  <div class="modal-dialog">
 				<div class="modal-content">
 			        <div class="modal-header">
@@ -187,88 +256,53 @@
 			</div>     
 		</div>  
 		
-		<div class="modal fade" id="commentThemeModal" tabindex="-1" role="dialog"  style="display: none;">
-    	  <div class="modal-dialog">
-				<div class="modal-content">
-			        <div class="modal-header">
-			      
-			          <h4 class="modal-title">Comment theme</h4>
-			        </div>
-			        <div class="modal-body">
-			          <div class="form-group">
-					      <label>Theme's name:</label>
-					      <input type="text" class="form-control" id="name" ng-model="name" disabled>
-					  </div>
-					  <div class="form-group">
-					      <label>Theme's author:</label>
-					      <input type="text" class="form-control" id="author" ng-model="author" disabled>
-					  </div>
-					  <div class="form-group">
-					      <label>Comment:</label>
-					      <input type="text" class="form-control" id="textOfComment" ng-model="textOfComment">
-					  </div>
-			        <div class="modal-footer">
-			          <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="commentTheme()">Comment</button>
-			          <button type="button" class="btn btn-warning" data-dismiss="modal">Cancel</button>
-			          
-			        </div>
-			   	   </div>
-				</div>	
-			</div>     
-		</div>
 		
-		<div class="modal fade" id="deleteThemeModal" tabindex="-1" role="dialog"  style="display: none;">
+		
+		
+		
+		<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"  style="display: none;">
     	  <div class="modal-dialog">
 				<div class="modal-content">
 			        <div class="modal-header">
 			      
-			          <h4 class="modal-title">Delete theme</h4>
+			          <h4 class="modal-title">Delete subforum</h4>
 			        </div>
 			        <div class="modal-body">
 			          <div class="form-group">
-			          		<label>Are you sure to want to delete theme?</label>
+			          		<label>Are you sure to want to delete subforum?</label>
 			          </div>
 			        <div class="modal-footer">
-			          <button type="button" class="btn btn-warning" data-dismiss="modal" ng-click="deleteTheme()">Delete</button>
-			          <button type="button" class="btn btn-success" data-dismiss="modal">Cancel</button>
+			          <button type="button" class="btn btn-success" data-dismiss="modal" ng-click="deleteSubforum()">Delete</button>
+			          <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
 			        </div>
 			   	   </div>
 				</div>	
 			</div>     
 		</div>  
-	</div>
 		
+		
+		
+		
+	<div class="container" ng-show="showSubforum">
+		<div class="row">
+			<div class="panel panel-success">
+	        <div class="panel-heading clearfix">
+	          <h3 class="panel-title">Subforum {{activeSubforum.name}}</h3>
+	        </div>
+	        <div class="panel-body">
+	            <form role="form" class="form-horizontal">
+	                <button type="button" class="btn btn-warning" data-toggle="modal" data-target="#themesModal" ng-click="showCreateTheme(activeSubforum)">Create theme</button>
+	            </form>
+
+	        </div>
+      		</div>
+		</div>
+	</div>
 </div>
     
-    
-<div class="container" ng-show="followedForum" ng-controller="subforumController">
-		<div class="row"">
-			<div class="panel panel-default">
-	        <div class="panel-heading clearfix">
-	          <h3 class="panel-title">Followed subforum</h3>
-	         </div>
-				<table class="table table-striped">
-				    <thead>
-				      <tr>
-				        <th>Name</th>
-				        <th>Description</th>
-				      </tr>
-				    </thead>
-				    <tbody>
-				      <tr ng-repeat="s in followedSubforum">
-				        <td>{{s.name}}</td>
-				        <td>{{s.description}}</td>
-				      </tr>
-				    </tbody>
-				  </table>
-		  </div>
-		</div>
-</div>		
-    
-    
   <div class="container" ng-show="inbox">
-	<div class="row">
-		<div class="panel panel-default">
+	<div class="row col-md-6">
+		<div class="panel panel-success">
         <div class="panel-heading clearfix">
           <h3 class="panel-title">Message Form</h3>
         </div>
@@ -287,9 +321,9 @@
         </div>
       </div>
 	</div>
-	
-		<div class="row"">
-			<div class="panel panel-default">
+
+		<div class="row col-md-6">
+			<div class="panel panel-success">
 	        <div class="panel-heading clearfix">
 	          <h3 class="panel-title">Inbox</h3>
 	         </div>
@@ -342,9 +376,9 @@
 		</div>  
 </div>
 
-	<div class="container" ng-show="editUserRole" >
-		<div class="row"">
-			<div class="panel panel-default">
+	<div class="container" ng-show="editUserRole">
+		<div class="row col-md-6">
+			<div class="panel panel-success">
 	        <div class="panel-heading clearfix">
 	          <h3 class="panel-title">Edit User Role</h3>
 	         </div>
@@ -352,12 +386,16 @@
 				    <thead>
 				      <tr>
 				        <th>Username</th>
+				        <th>First name</th>
+				        <th>Last name</th>
 				        <th>User role</th>
 				      </tr>
 				    </thead>
 				    <tbody>
 				      <tr ng-repeat="u in users">
 				        <td>{{u.username}}</td>
+				        <td>{{u.firstName}}</td>
+				        <td>{{u.lastName}}</td>
 				        <td>{{u.role}}</td>
 				        <td><button type="button" class="btn btn-success" ng-click="editUser(u)"  data-toggle="modal" data-target="#editUserModal">Edit user role</button></td>
 				      </tr>
@@ -403,21 +441,25 @@
 			</div>     
 		</div>  
 	</div>	
-		<div class="container" ng-show="createForum" ng-controller="subforumController">
-			<div class="row">
-				<div class="panel panel-default">
-		        <div class="panel-heading clearfix">
-		          <h3 class="panel-title">Create Forum</h3>
-		        </div>
-		        <div class="panel-body">
+	<div class="container" ng-show="createForum" ng-controller="subforumController">
+		<div class="row col-md-6">
+			<div class="panel panel-success">
+		   		 <div class="panel-heading clearfix">
+		       		 <h3 class="panel-title">Create Forum</h3>
+		       	 </div>
+	    	     <div class="panel-body">
 		            <form role="form" class="form-horizontal">
 		                <div class="form-group">
 		                  <label class="col-sm-2" for="inputTo">Name</label>
-		                  <div class="col-sm-10"><input type="text" ng-model="subforum.name" class="form-control" id="forumName"></div>
+		                  <div class="col-sm-10">
+		                  	<input type="text" ng-model="subforum.name" class="form-control" id="forumName">
+		                  </div>
 		                </div>
 		                <div class="form-group">
 		                  <label class="col-sm-2" for="inputBody">Description</label>
-		                  <div class="col-sm-10"><input type="text" ng-model="subforum.description" class="form-control" id="forumDescription"></div>
+		                  <div class="col-sm-10">
+		                  <input type="text" ng-model="subforum.description" class="form-control" id="forumDescription">
+		                  </div>
 		                </div>
 		                <div class="form-group">
 		                	<div class="fileupload fileupload-new" data-provides="fileupload"></div>
@@ -432,12 +474,149 @@
 									</span>		                
 								</div>
 							</div> 
-							
-							<button type="button" class="btn btn-success" ng-click="createSubforum()">Create Forum</button>	
-						
+						<button type="button" class="btn btn-success" ng-click="createSubforum()">Create Forum</button>	
 		            </form>
 		        </div>
 		      </div>
 			</div>
+			<div class="row col-md-6">
+				<div class="panel panel-success">
+	        		<div class="panel-heading clearfix">
+	         			 <h3 class="panel-title">Followed subforum</h3>
+	        		 </div>
+						<table class="table table-striped" >
+						    <thead>
+						      <tr>
+						        <th>Name</th>
+						        <th>Description</th>
+						        <th>Icon</th>
+						      </tr>
+						    </thead>
+						    <tbody>
+						      <tr ng-repeat="s in followedSubforum">
+						        <td>{{s.name}}</td>
+						        <td>{{s.description}}</td>
+						        <td><img ng-src="icons/{{s.icon}}" height="48px" width="48px"></td>
+						      </tr>
+						    </tbody>
+						  </table>
+			  </div>
 		</div>
+	</div>
+		
+	<div ng-show="search">
+	
+		<div class="page-header">
+			<h1>Search</h1>
+		</div>
+		<div class="container">
+				<div class="row justify-content-center">
+					<button class="btn btn-success col-md-2" data-toggle="collapse"	data-target="#searchUsers">
+						<span class="glyphicon glyphicon-chevron-down"></span> Search users
+					</button>
+				</div>
+				<div id="searchUsers" class="collapse">
+					<hr />
+					<div class="form-row">
+						<div class="form-group col-md-6">
+							<label for="code" class="control-label"> Username: </label> 
+							<input type="text" class="form-control" id="code" ng-model="username" placeholder="Enter username">
+						</div>
+					</div>
+					<div class="row">
+						<button type="button" class="btn btn-success pull-left col-md-2" ng-click="searchUsers()">Search user </button>
+					</div>
+					<hr />
+				</div>
+				<div ng-repeat="user in users track by $index">
+					<div class="panel panel-success col-md-4">
+						<div class="panel-heading">{{user.username}}</div>
+							<div class="panel-body">
+								<h3>
+									<b>First Name: </b> {{user.firstName}}
+								</h3>
+								<h3>
+									<b>Last Name: </b> {{user.lastName}}
+								</h3>
+								<h3>
+									<b>Email: </b> {{user.email}}
+								</h3>
+								<hr />
+							</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="container" ng-controller="subforumController">
+				<div class="row justify-content-center">
+					<button class="btn btn-success col-md-2" data-toggle="collapse"	data-target="#searchSubforums">
+						<span class="glyphicon glyphicon-chevron-down"></span> Search subforum
+					</button>
+				</div>
+				<div id="searchSubforums" class="collapse">
+					<hr />
+					<div class="form-row">
+						<div class="form-group col-md-6">
+							<label for="code" class="control-label"> Subforum name: </label> 
+							<input type="text" class="form-control" id="code" ng-model="name" placeholder="Enter name of subforum">
+						</div>
+					</div>
+					<div class="row">
+						<button type="button" class="btn btn-success pull-left col-md-2" ng-click="searchSubforums()">Search subforum </button>
+					</div>
+					<hr />
+				</div>
+				<div ng-repeat="s in subforums track by $index">
+					<div class="panel panel-success col-md-4">
+						<div class="panel-heading">{{s.name}}</div>
+							<div class="panel-body">
+								<h3>
+									<b>Name: </b> {{s.name}}
+								</h3>
+								<h3>
+									<b>Description: </b> {{s.description}}
+								</h3>
+								<hr />
+							</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="container" ng-controller="subforumController">
+				<div class="row justify-content-center">
+					<button class="btn btn-success col-md-2" data-toggle="collapse"	data-target="#searchThemes">
+						<span class="glyphicon glyphicon-chevron-down"></span> Search theme
+					</button>
+				</div>
+				<div id="searchThemes" class="collapse">
+					<hr />
+					<div class="form-row">
+						<div class="form-group col-md-6">
+							<label for="code" class="control-label"> Theme name: </label> 
+							<input type="text" class="form-control" id="code" ng-model="name" placeholder="Enter name of theme">
+						</div>
+					</div>
+					<div class="row">
+						<button type="button" class="btn btn-success pull-left col-md-2" ng-click="searchThemes()">Search theme </button>
+					</div>
+					<hr />
+				</div>
+				<div ng-repeat="t in themes track by $index">
+					<div class="panel panel-success col-md-4">
+						<div class="panel-heading">{{t.name}}</div>
+							<div class="panel-body">
+								<h3>
+									<b>Name: </b> {{t.name}}
+								</h3>
+								<h3>
+									<b>Content: </b> {{t.content}}
+								</h3>
+								<hr />
+							</div>
+					</div>
+				</div>
+			</div>
+	</div>
+
 </div>
+		

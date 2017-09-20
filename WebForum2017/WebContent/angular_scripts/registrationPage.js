@@ -2,7 +2,7 @@ var app = angular.module('app', ['ngStorage','ngCookies', 'ngRoute', 'ngAnimate'
 
 app.run(['$cookies','$window',function($cookies, $window){
 	if($cookies.get("activeUser") == null || $cookies.get("activeUser") == undefined){
-		$window.location.href = "localhost:8080/WebForum2017/";
+		$window.location.href = "localhost:8080/WebForum2017/#/";
 	}else{
 		user = JSON.parse($cookies.get("activeUser"));
 		console.log(user);
@@ -27,13 +27,6 @@ app.config(function($routeProvider){
 			});
 	});
 
-app.config(function($mdThemingProvider){
-	$mdThemingProvider.theme('default');
-});
-
-app.config(function($logProvider){
-	$logProvider.debugEnabled(true);
-});
 
 
 app.controller('registrationPageController', function ($localStorage, $rootScope,$scope, usersFactory) {
@@ -48,16 +41,17 @@ $scope.register = function (user) {
 	    		
 			    usersFactory.addUser(user).success(function(data){
 			    	if(data){
-			    		toastr.info("This user already exists!");
+			    		toastr.success("You registered successfully!");	
+			    		
 			    	}else{
-			    		toastr.info("You registered successfully!");
+			    		toastr.warning("This user already exists!");
 			    	}
 			    });
 	    	}else{
-	    		toast("Please enter valid data");
+	    		toastr.warning("Please enter valid data");
 	    	}
 	    }else{
-	    	toast("Please enter valid data");
+	    	toastr.warning("Please enter valid data");
 	    }
 	    
 	  };
@@ -93,12 +87,12 @@ app.controller('loginController',function($localStorage,$cookies, $rootScope, $s
 	}
 	
 	$scope.goToRegister = function(){
-		$location.path('register');
+		$location.path('/register');
 	}
 	
 });
 
-app.controller('userController',function($localStorage,$cookies, $rootScope, $scope, $location, usersFactory, messagesFactory){
+app.controller('userController',function($localStorage,$cookies, $rootScope, $scope, $location, usersFactory, messagesFactory, subforumsFactory){
 
 	
 	$scope.activeUser = $cookies.getObject("activeUser");
@@ -108,8 +102,8 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 	$scope.createForum = false;
 	$scope.userHome = false;
 	$scope.followedForum = false;
+	$scope.search = false;
 			
-	
 	$scope.messages = [];
 	
 	$scope.users = [];
@@ -120,6 +114,7 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 		$scope.createForum = false;
 		$scope.userHome = false;
 		$scope.followedForum = false;
+		$scope.search = false;
 	}
 	
 	$scope.goToUserRole = function(){
@@ -128,6 +123,7 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 		$scope.createForum = false;
 		$scope.userHome = false;
 		$scope.followedForum = false;
+		$scope.search = false;
 	}
 	
 	$scope.goToCreateForum = function(){
@@ -136,7 +132,15 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 		$scope.createForum = true;
 		$scope.userHome = false;
 		$scope.followedForum = false;
+		$scope.search = false;
+		
+		subforumsFactory.getFollowSubforum().success(function(data){
+			console.log(data);
+			$scope.followedSubforum = data;
+		});
 	}
+	
+	$scope.subforums = [];
 	
 	$scope.goToUserHome = function(){
 		$scope.userHome = true;
@@ -144,15 +148,31 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 		$scope.inbox = false;
 		$scope.createForum = false;
 		$scope.followedForum = false;
+		$scope.search = false;
+		
+		subforumsFactory.getSubforum().success(function(data){
+			console.log(data);
+			$scope.subforums = data;
+		});
+		
 	}
 	
-	$scope.goToFollowedForum = function(){
+	$scope.followedSubforum = [];
+	
+	
+	$scope.goToSearch = function(){
 		$scope.userHome = false;
 		$scope.editUserRole = false;
 		$scope.inbox = false;
 		$scope.createForum = false;
-		$scope.followedForum = true;
+		$scope.followedForum = false;
+		$scope.search = true;
 	}
+	
+	$scope.logout = function() {
+		$cookies.remove("activeUser");
+		$location.path('/');
+	} 	
 	
 	$scope.editUser = function(u){
 		$scope.username = u.username;
@@ -183,13 +203,26 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 	}
 	
 	$scope.sendMessage = function(){
-		messagesFactory.sendMessage($scope.message);
-		if($scope.message.receiver == $scope.activeUser.username){
-		$scope.messages.push($scope.message);
+		if(!$scope.message.receiver){
+			toastr.warning('Please enter receiver username.');
+		}else if(!$scope.message.content){
+			toastr.warning('Please enter content of message.');
+		}else{			
+			if($scope.message.receiver == $scope.activeUser.username){
+				$scope.messages.push($scope.message);
+				}
+			messagesFactory.sendMessage($scope.message).success(function(data){
+				if( data == "Message sent"){
+					toastr.success(data);
+					$scope.message.receiver = null;
+					$scope.message.content = null;
+				}
+				else{
+					toastr.warning(data);
+				}
+				
+			});
 		}
-		toastr.success('Message has been sent!');
-		$scope.message.receiver = null;
-		$scope.message.content = null;
 	}
 	
 	$scope.replyMessage = function(){
@@ -232,10 +265,29 @@ app.controller('userController',function($localStorage,$cookies, $rootScope, $sc
 			return false;
 	}
 	
+	$scope.userSearch = {
+			username : ""
+	}
+	
+	
+	
+	
+	$scope.searchUsers = function() {
+		if($scope.username == "" || $scope.username == null){
+			toastr.info("Enter username");
+		}else{
+		usersFactory.searchUsers($scope.username).success(function(data) {
+			$scope.users = data;
+			console.log(data);
+		});
+		}
+	}
+	
+	
 	
 });
 
-app.controller('subforumController',function($localStorage,$cookies, $rootScope, $scope, $filter ,$location, usersFactory, subforumsFactory, themesFactory, commentsFactory){
+app.controller('subforumController',function($localStorage,$cookies, $rootScope, $scope, $filter ,$location, usersFactory, subforumsFactory, themesFactory, commentsFactory ,$filter){
 
 	console.log("evo me u subForumController-u");
 	
@@ -244,22 +296,74 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 	$scope.subforums = [];
 	$scope.followButton = false;
 	$scope.saveThemeButton = false;
+	$scope.likeThemeButton = false;
+	$scope.dislikeThemeButton = false;
+	$scope.subforumDetails = false;
 
 	
 	$scope.activeUser = $cookies.getObject("activeUser");
 	$scope.subforum =  {name: null, description: null, icon:null, moderators: null, listOfRules : null, responsibleModerator : $scope.activeUser.username };
 	$scope.activeSubforum = null;
+	$scope.subforumDetail = null;
+	$scope.themeDetail = null;
 	
-	var date = new Date();
-	var newDate = $filter('date')(date,"dd-MM-yyyy");
+	$scope.comments = [];
+	$scope.savedComments = [];
 	
-	$scope.theme = {themesSubforum : $scope.activeSubforum , name : "", type : "", author : $scope.activeUser.username, comments: null, content : "" , dateOfCreating : newDate, like : null , dislike : null};
+	var datum = new Date();
+	var noviDatum = $filter('date')(datum, "dd-MM-yyyy HH:mm");
+	$scope.newTheme = { "themesSubforum" : $scope.subforumDetail, "name" : null, "type" : null, "author" : $scope.activeUser.username, 
+			"listOfComments" : [], "content" : null, "dateOfCreating" : noviDatum, "like" : 0, "dislike" : 0 , "usersLiked" : [], "usersDisliked" : []}
+	$scope.newComment = { "theme" : $scope.themeDetail, "author" : $scope.activeUser.username, "creatingDate" : noviDatum, "parent" : null,
+			"children" : [], "text" : null, "likes" : 0, "dislikes" : 0, "changed" : false, "deleted" : false, "usersLiked" : [], "usersDisliked" : []}
+	$scope.newSubcomment = { "theme" : $scope.themeDetail, "author" : $scope.activeUser.username, "creatingDate" : noviDatum, "parent" : null,
+			"children" : [], "text" : null, "likes" : 0, "dislikes" : 0, "changed" : false, "deleted" : false, "usersLiked" : [], "usersDisliked" : []}
 	$scope.themes =  [];
 	$scope.savedTheme = [];
+	$scope.likedTheme = [];
+	$scope.dislikedTheme = [];
 	$scope.activeTheme = null;
 	
-
 	
+	//SEARCH SUBFORUM
+	
+	$scope.searchSubforums = function() {
+		if($scope.name == null || $scope.name == ""){
+			toastr.info("Enter name of subforum");
+		}else{
+		subforumsFactory.searchSubforums($scope.name).success(function(data) {
+			$scope.subforums = data;
+			console.log(data);
+		});
+		}
+	}
+	
+	$scope.searchThemes = function() {
+		if($scope.name == null || $scope.name == ""){
+			toastr.info("Enter name of theme");
+		}else{
+		themesFactory.searchThemes($scope.name).success(function(data) {
+			$scope.themes = data;
+		});
+		}
+	}
+	
+	//more about subforum
+	
+	$scope.more = function(s){
+		$scope.subforumDetails = true;
+		$scope.subforumDetail = s;
+		themesFactory.getTheme(s.name).success(function(data){
+			$scope.themes = data;
+		});
+		themesFactory.getSavedTheme($scope.activeUser.username).success(function(data){
+			$scope.savedThemes = data;
+		});
+		$scope.themeDetails = false;
+	}
+	
+
+
 	subforumsFactory.getSubforum().success(function(data){
 		console.log(data);
 		$scope.subforums = data;
@@ -275,34 +379,26 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 		$scope.prom = s;
 	}
 	
-	$scope.showThisSubforum = function(s){
-		$scope.showSubforum = !$scope.showSubforum;
-		$scope.activeSubforum = s;
-		subforumsFactory.getFollowSubforum($scope.activeUser.username).success(function(data){
-			$scope.followedSubforum = data;
-		});
-	}
+	//PRACENJE FORUMA
 	
-	$scope.followSubforum = function(k){
-		$scope.activeSubforum = k;
-		console.log($scope.activeSubforum);
-		$scope.postojim = false;
-		for(i=0; i<$scope.followedSubforum.length; i++){
-			if($scope.activeSubforum.name == $scope.followedSubforum[i].name){
-				$scope.postojim = true;
+	$scope.followSubforum = function(s){
+		$scope.isFollow = false;
+		for(i = 0; i < $scope.followedSubforum.length; i++){
+			if($scope.followedSubforum[i].name == s.name){
+				$scope.isFollow = true;
 			}
 		}
-		if(!$scope.postojim){
-				subforumsFactory.followSubforum($scope.activeUser.username, $scope.activeSubforum);
-				toastr.success("Followed subforum.");
-				$scope.followButton = true;
-			}
-		else{
-				toastr.warning("You are alredy followed subforum.");
-			}
-		
+		if(!$scope.isFollow){
+			$scope.followedSubforum.push(s);
+			subforumsFactory.followSubforum($scope.activeUser.username, s).success(function(data){
+				toastr.info(data);
+			});
+		}else{
+			toastr.warning('You alredy follow this forum.');
+		}
 	}
 	
+	//BRISANJE FORUMA
 	
 	$scope.deleteSubforum = function(){
 		subforumsFactory.deleteSubforum($scope.prom);
@@ -317,6 +413,8 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 	 $scope.setFileEventListener = function(element) {
 		 $scope.uploadedFile= element.files[0];
 	 } 
+	 
+	 //KREIRANJE FORUMA
 	 
 	 $scope.createSubforum = function() {
 		 createSubforum();
@@ -336,70 +434,374 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 		 else {
 					subforumsFactory.addSubforum($scope.subforum, $scope.uploadedFile).success(function(data){
 					   	if(data == "Registered subforum"){
-					   		toastr.info("You created subforum successfully!");
+					   		toastr.info("You created subforum successfully!");	
+					   		$scope.goToUserHome();
 					   	}else{
 					   		toastr.info("This subforum already exists!");
 					   	}
 					   });
-					$scope.subforums.push($scope.subforum, $scope.uploadedFile);
 		 		}
 		 $scope.subforum.name = null;
 		 $scope.subforum.description = null;
 	 
 	 }
+	 
+	 //COMMENT 
+		$scope.openTheme = function(theme){
+			$scope.themeDetails = true;
+			$scope.themeDetail = theme;
+			commentsFactory.getComments(theme.name).success(function(data){
+				$scope.comments = data;
+			});
+			commentsFactory.getSavedComments($scope.activeUser.username).success(function(data){
+				$scope.savedComments = data;
+			});
+		}
+		$scope.createNewComment = function(){
+			if(!$scope.newCommentText){
+				toastr.warning('Please enter text of comment');
+			}else{
+				$scope.newComment.theme = $scope.themeDetail;
+				$scope.newComment.text = $scope.newCommentText;
+				commentsFactory.addComment($scope.newComment).success(function(data){
+					if(data == "Theme commented"){
+						toastr.warning(data);
+						$scope.comments.push($scope.newComment);
+						$scope.newCommentText = null;
+						$scope.newComment.children = [];
+						$scope.newComment.theme = null;
+					}
+				});
+				$scope.openTheme($scope.themeDetail);
+			}
+		}
+		$scope.subcomment = {};
+		$scope.createNewSubcomment = function(comment){
+			if(comment.deleted){
+				toastr.warning('You cannot reply on deleted comment');
+				return;
+			}
+			if(!$scope.subcomment.com){
+				toastr.warning('Please enter text of subcomment');
+			}else{
+				$scope.newSubcomment.theme = $scope.themeDetail;
+				$scope.newSubcomment.text = $scope.subcomment.com;
+				for( i = 0; i < $scope.comments.length; i++){
+					if($scope.comments[i].text == comment.text){
+						if($scope.comments[i].children == null)
+							$scope.comments[i].children = [];
+						$scope.comments[i].children.push($scope.newSubcomment);
+						commentsFactory.addSubcomment($scope.comments[i]).success(function(data){
+							toastr.warning(data);
+						});
+						$scope.subcomment.com = null;
+					}
+				}
+			}
+		}
+		$scope.editComment = function(comment){
+			var date = new Date();
+			var newDate = $filter('date')(date, "dd-MM-yyyy HH:mm");
+			$scope.editCommentModal = { "theme" : comment.theme, "author" : comment.author, "creatingDate" : newDate, "parent" : comment.parent,
+					"children" : comment.children, "text" : comment.text, "likes" : comment.likes, "dislikes" : comment.dislikes, "changed" : comment.changed, "deleted" : comment.deleted}
+			$scope.oldCom = comment.text;
+		}
+		$scope.cancelEditComment = function(){
+			$scope.editCommentModal = null;
+		}
+		$scope.saveEditComment = function(){
+			if($scope.editCommentModal.deleted){
+				toastr.warning('You cannot edit deleted comment');
+				return;
+			}
+			if($scope.activeUser.username == $scope.editCommentModal.theme.subforum.responibleModerator){
+				console.log("responsible");
+				commentsFactory.editComment($scope.editCommentModal, $scope.oldCom).success(function(data){
+					toastr.warning(data);
+					for(i = 0; i < $scope.comments.length; i++){
+						if($scope.comments[i].text == $scope.oldCom){
+							$scope.comments[i].text = $scope.editCommentModal.text;
+							$scope.comments[i].creatingDate = $scope.editCommentModal.creatingDate;
+							$scope.comments[i].changed = $scope.editCommentModal.changed;
+						}
+						for(j = 0; j < $scope.comments[i].children.length; j++){
+							if($scope.comments[i].children[j].text == $scope.oldCom){
+								$scope.comments[i].children[j].text = $scope.editCommentModal.text;
+								$scope.comments[i].children[j].creatingDate = $scope.editCommentModal.creatingDate;
+								$scope.comments[i].children[j].changed = $scope.editCommentModal.changed;
+							}
+						}
+					}
+				});
+			}else if($scope.activeUser.username == $scope.editCommentModal.author){
+				console.log("ahutor");
+				$scope.editCommentModal.changed = true;
+				commentsFactory.editComment($scope.editCommentModal, $scope.oldCom).success(function(data){
+					toastr.warning(data);
+					for(i = 0; i < $scope.comments.length; i++){
+						if($scope.comments[i].text == $scope.oldCom){
+							$scope.comments[i].text = $scope.editCommentModal.text;
+							$scope.comments[i].creatingDate = $scope.editCommentModal.creatingDate;
+							$scope.comments[i].changed = $scope.editCommentModal.changed;
+						}
+						for(j = 0; j < $scope.comments[i].children.length; j++){
+							if($scope.comments[i].children[j].text == $scope.oldCom){
+								$scope.comments[i].children[j].text = $scope.editCommentModal.text;
+								$scope.comments[i].children[j].creatingDate = $scope.editCommentModal.creatingDate;
+								$scope.comments[i].children[j].changed = $scope.editCommentModal.changed;
+							}
+						}
+					}
+				});
+			}else{
+				toastr.warning('You cannot edit comment');
+			}
+		}
+		$scope.deleteComment = function(comment){
+			if(comment.deleted){
+				toastr.warning('Comment is already deleted');
+				return;
+			}
+			if($scope.isAdministrator()){
+				console.log("admin");
+				commentsFactory.deleteComment(comment).success(function(data){
+					toastr.warning(data);
+					for(i = 0; i < $scope.comments.length; i++){
+						if($scope.comments[i].text == comment.text){
+							$scope.comments[i].deleted = true;
+							for(j = 0; j < $scope.comments[i].children.length; j++)
+								$scope.comments[i].children[j].deleted = true;
+						}else{
+							for(j = 0; j < $scope.comments[i].children.length; j++){
+								if($scope.comments[i].children[j].text == comment.text)
+									$scope.comments[i].children[j].deleted = true;
+							}
+						}
+					}
+				});
+			}else if($scope.activeUser.username == comment.theme.subforum.responibleModerator){
+				console.log("responsibleModerator");
+				commentsFactory.deleteComment(comment).success(function(data){
+					toastr.warning(data);
+					for(i = 0; i < $scope.comments.length; i++){
+						if($scope.comments[i].text == comment.text){
+							$scope.comments[i].deleted = true;
+							for(j = 0; j < $scope.comments[i].children.length; j++)
+								$scope.comments[i].children[j].deleted = true;
+						}else{
+							for(j = 0; j < $scope.comments[i].children.length; j++){
+								if($scope.comments[i].children[j].text == comment.text)
+									$scope.comments[i].children[j].deleted = true;
+							}
+						}
+					}
+				});
+			}else if($scope.activeUser.username == comment.author){
+				console.log("author");
+				commentsFactory.deleteComment(comment).success(function(data){
+					toastr.warning(data);
+					for(i = 0; i < $scope.comments.length; i++){
+						if($scope.comments[i].text == comment.text){
+							$scope.comments[i].deleted = true;
+							for(j = 0; j < $scope.comments[i].children.length; j++)
+								$scope.comments[i].children[j].deleted = true;
+						}else{
+							for(j = 0; j < $scope.comments[i].children.length; j++){
+								if($scope.comments[i].children[j].text == comment.text)
+									$scope.comments[i].children[j].deleted = true;
+							}
+						}
+					}
+				});
+			}else{
+				
+			}
+		}
+		$scope.saveComment = function(comment){
+			$scope.isSaved = false;
+			for(i = 0; i < $scope.savedComments.length; i++){
+				if($scope.savedComments[i].text == comment.text)
+					$scope.isSaved = true;
+			}
+			if(!$scope.isSaved){
+				$scope.savedComments.push(comment);
+				for(i = 0; i < $scope.comments.length; i++){
+					if($scope.comments[i].text == comment.text){
+						commentsFactory.saveComment($scope.activeUser.username, $scope.comments[i]).success(function(data){
+							toastr.warning(data);
+						});
+					}else{
+						for(j = 0; j < $scope.comments[i].children.length; j++){
+							if($scope.comments[i].children[j].text == comment.text){
+								commentsFactory.saveComment($scope.activeUser.username, $scope.comments[i].children[j]).success(function(data){
+									toastr.warning(data);
+								});
+							}
+						}
+					}
+				}
+			}else{
+				toastr.warning('You already saved this comment');
+			}
+		}
+		$scope.likeComment = function(comment){
+			commentsFactory.likeComment($scope.activeUser.username, comment).success(function(data){
+				if(data == "Comment liked"){
+					for(i = 0; i < $scope.comments.length; i++){
+						if($scope.comments[i].text == comment.text){
+							$scope.comments[i].likes++;
+							$scope.comments[i].usersLiked.push($scope.activeUser.username);
+						}else{
+							for(j = 0; j < $scope.comments[i].children.length; j++){
+								if($scope.comments[i].children[j].text == comment.text){
+									$scope.comments[i].children[j].likes++;
+									$scope.comments[i].children[j].usersLiked.push($scope.activeUser.username);
+								}
+							}
+						}
+					}
+					toastr.warning(data);
+				}else{
+					toastr.warning(data);
+				}
+			});
+		}
+		$scope.dislikeComment = function(comment){
+			commentsFactory.dislikeComment($scope.activeUser.username, comment).success(function(data){
+				if(data == "Comment disliked"){
+					for(i = 0; i < $scope.comments.length; i++){
+						if($scope.comments[i].text == comment.text){
+							$scope.comments[i].dislikes++;
+							$scope.comments[i].usersDisliked.push($scope.activeUser.username);
+						}else{
+							for(j = 0; j < $scope.comments[i].children.length; j++){
+								if($scope.comments[i].children[j].text == comment.text){
+									$scope.comments[i].children[j].dislikes++;
+									$scope.comments[i].children[j].usersDisliked.push($scope.activeUser.username);
+								}
+							}
+						}
+					}
+					toastr.warning(data);
+				}else{
+					toastr.warning(data);
+				}
+			});
+		}
+
+	 
+	 //KREIRANJE TEME
+	 
+	$scope.createTheme = function(){
+		if(!$scope.theme.name){
+			toastr.warning("Please enter theme's name");
+		}
+		else if(!$scope.theme.type){
+			toastr.warning("Please choose theme's type");
+		}
+		else if(!$scope.theme.content){
+			toastr.warning("Please enter theme's content");
+		}
+		else{
+			var daTe = new Date();
+			var newDaTe = $filter('date')(daTe, "dd-MM-yyyy HH:mm");
+			$scope.theme.dateOfCreating = newDaTe;
+			$scope.theme.themesSubforum = $scope.subforumDetail;
+			themesFactory.createTheme($scope.theme).success(function(data){
+			   	if(data == "Registered theme"){
+			   		toastr.success(data);
+			   		$scope.themes.push($scope.theme);
+			   	}else{
+			   		toastr.warning(data);
+			   	}
+		    });
+		}
+	}
 	
-	$scope.showCreateTheme = function(s){
-		$scope.activeSubforum = s;
+	$scope.cancelNewTheme = function(){
+		themesFactory.getTheme($scope.subforumDetail.name).success(function(data){
+			$scope.themes = data;
+		});
 		$scope.theme.name = null;
+		$scope.theme.type = null;
 		$scope.theme.content = null;
 	}
 	
-	$scope.createTheme = function(){
-		$scope.theme.themesSubforum = $scope.activeSubforum;
-		themesFactory.createTheme($scope.theme).success(function(data){
-		   	if(data == "Registered theme"){
-		   		toastr.info("You created theme successfully!");
-		   		$scope.themes.push($scope.theme);
-		   	}else{
-		   		toastr.info("This theme already exists!");
-		   	}
-		   });
-
-	}
+	//BRISANJE TEMA
 	
 	$scope.removeTheme = function(t){
-		console.log("removeTheme angular fja");
 		$scope.promjenjiva = t;
+		console.log($scope.promjenjiva);
 	}
 	
 	$scope.deleteTheme = function(){
-		themesFactory.deleteTheme($scope.promjenjiva);
+		themesFactory.deleteTheme($scope.promjenjiva).success(function(data){
+			toastr.warning(data);
 		for(i=0; i<$scope.themes.length; i++){
 			if($scope.themes[i].name == $scope.promjenjiva.name){
 				$scope.themes.splice(i,1);
 			}
 		}
+		});
 		toastr.success("Deleted theme.");
 	}
 	
+	
+	//SNIMANJE TEME
+	
 	$scope.saveTheme = function(t){
-		$scope.theme = t;
-		console.log($scope.t);
 		$scope.p = false;
 		for(i=0; i<$scope.savedTheme.length; i++){
-			if($scope.theme.name == $scope.savedTheme[i].name){
+			if( $scope.savedTheme[i].name == t.name){
 				$scope.p = true;
 			}
 		}
 		if(!$scope.p){
-				themesFactory.saveTheme($scope.activeUser.username, $scope.theme);
-				toastr.success("Saved theme.");
-				$scope.saveThemeButton = true;
+			$scope.savedThemes.push(t);
+			for(i = 0; i < $scope.themes.length; i++){
+				if($scope.themes[i].name == t.name){
+					themesFactory.saveTheme($scope.activeUser.username, $scope.themes[i]).success(function(data){
+						toastr.success(data);
+					});
+				}
 			}
-		else{
+		}else{
 				toastr.warning("You are alredy saved theme.");
 			}
 		
+	}
+	
+	//LAJKOVANJE I DISLAJKOVANJE TEMA
+	
+	$scope.likeTheme = function(theme){
+		themesFactory.likeTheme($scope.activeUser.username, theme).success(function(data){
+			if(data == "Theme liked"){
+				for(i = 0; i < $scope.themes.length; i++){
+					if($scope.themes[i].name == theme.name){
+						$scope.themes[i].like++;
+						$scope.themes[i].usersLiked.push($scope.activeUser.username);
+					}
+				}
+				toastr.info(data);
+			}else{
+				toastr.info(data);
+			}
+		});
+	}
+	$scope.dislikeTheme = function(theme){
+		themesFactory.dislikeTheme($scope.activeUser.username, theme).success(function(data){
+			if(data == "Theme disliked"){
+				for(i = 0; i < $scope.themes.length; i++){
+					if($scope.themes[i].name == theme.name){
+						$scope.themes[i].dislike++;
+						$scope.themes[i].usersDisliked.push($scope.activeUser.username);
+					}
+				}
+				toastr.info(data);
+			}else{
+				toastr.info(data);
+			}
+		});
 	}
 	  
 	
@@ -408,15 +810,16 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 		$scope.themes = data;
 	});
 	
+
 	
-	themesFactory.getSavedTheme($scope.activeUser.username).success(function(data){
-		$scope.savedTheme = data;
-		console.log(data);
-	});
+	//IZMJENA TEME
 	
 	$scope.editT = function(t){
 		$scope.name = t.name;
-		$scope.theme = {themesSubforum : null , name : "", type : "", author : $scope.activeUser.username, comments: null, content : t.content , dateOfCreating : newDate, like : null , dislike : null};
+		var daTe = new Date();
+		var newDate = $filter('date')(daTe, "dd-MM-yyyy HH:mm");
+		
+		$scope.theme = {themesSubforum : $scope.subforumDetail , name : "", type : "", author : $scope.activeUser.username, listOfComments: [], content : t.content , dateOfCreating : newDate, like : 0 , dislike : 0, "usersLiked" : [], "usersDisliked" : []};
 	}
 	
 	$scope.editTheme = function(name, content){
@@ -430,25 +833,6 @@ app.controller('subforumController',function($localStorage,$cookies, $rootScope,
 			}
 		}
 		
-	}
-	
-	$scope.commentT = function(t){
-		$scope.activeTheme = t;
-		$scope.name = t.name;
-		$scope.author = $scope.activeUser.username;
-	}
-	
-	$scope.commentTheme = function(){
-		$scope.comment.theme = $scope.activeTheme;
-		themesFactory.createTheme($scope.theme).success(function(data){
-		   	if(data == "Registered theme"){
-		   		toastr.info("You commented theme successfully!");
-		   		$scope.themes.push($scope.theme);
-		   	}else{
-		   		toastr.info("This comment already exists!");
-		   	}
-		   });
-
 	}
 	
 	 
